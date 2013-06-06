@@ -1,0 +1,6 @@
+[submodule "Libraries/TouchDB-iOS"]
+	path = Libraries/TouchDB-iOS
+	url = https://github.com/couchbaselabs/TouchDB-iOS.git
+[submodule "Libraries/CouchCocoa"]
+	path = Libraries/CouchCocoa
+	url = https://github.com/couchbaselabs/CouchCocoa.git

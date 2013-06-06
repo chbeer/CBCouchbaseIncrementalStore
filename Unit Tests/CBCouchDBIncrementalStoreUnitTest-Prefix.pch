@@ -1,0 +1,8 @@
+//
+// Prefix header for all source files of the 'TouchDB Unit Test' target in the 'TouchDB Unit Test' project
+//
+
+#ifdef __OBJC__
+    #import <UIKit/UIKit.h>
+    #import <Foundation/Foundation.h>
+#endif
