@@ -208,14 +208,11 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         // NOTE: currently we are waiting for each operation. That's not really what we want.
         // maybe we should wait using +[RESTOperation wait:set] but that didn't work on my test.
         
-        // Merge updated and inserted objects... updated objects have a _rev
-        NSMutableSet *updatedObjects = [[save insertedObjects] mutableCopy];
-        [updatedObjects unionSet:[save updatedObjects]];
+        NSMutableArray *properties = [NSMutableArray arrayWithCapacity:[save insertedObjects].count];
+        NSMutableDictionary *documentIDToObjectID = [NSMutableDictionary dictionaryWithCapacity:[save insertedObjects].count];
         
-        NSMutableArray *properties = [NSMutableArray arrayWithCapacity:updatedObjects.count];
-        NSMutableDictionary *documentIDToObjectID = [NSMutableDictionary dictionaryWithCapacity:updatedObjects.count];
-        
-        for (NSManagedObject *object in updatedObjects) {
+        // Objects that were inserted...
+        for (NSManagedObject *object in [save insertedObjects]) {
             NSDictionary *contents = [self couchDBRepresentationOfManagedObject:object withCouchDBID:YES];
             
             [properties addObject:contents];
@@ -228,6 +225,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         BOOL success = [op wait];
         if (success) {
             NSArray *result = op.resultObject;
+            
             for (CouchDocument *doc in result) {
                 NSManagedObjectID *objectID = [documentIDToObjectID objectForKey:doc.documentID];
                 NSManagedObject *object = [context objectWithID:objectID];
@@ -238,8 +236,12 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                 [object setPrimitiveValue:doc.currentRevisionID forKey:@"cbtdbRev"];
                 [object didChangeValueForKey:@"cbtdbRev"];
                 
+                [object willChangeValueForKey:@"objectID"];
+                [context obtainPermanentIDsForObjects:@[object] error:nil];
+                [object didChangeValueForKey:@"objectID"];
+                
                 [context refreshObject:object mergeChanges:YES];
-            }            
+            }
         } else {
             if (error) *error = [NSError errorWithDomain:kCBTDBIncrementalStoreErrorDomain
                                                     code:2 userInfo:@{
@@ -254,27 +256,59 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         }
         
         
-        // Objects that were deleted from the calling context.
-        [[save deletedObjects] enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
-            NSManagedObject *object = obj;
+        // Objects that were updated...
+        
+        properties = [NSMutableArray arrayWithCapacity:[save updatedObjects].count];
+        documentIDToObjectID = [NSMutableDictionary dictionaryWithCapacity:[save updatedObjects].count];
+        
+        for (NSManagedObject *object in [save updatedObjects]) {
+            NSDictionary *contents = [self couchDBRepresentationOfManagedObject:object withCouchDBID:YES];
             
-            CouchDocument* doc = [self.database documentWithID:[object.objectID couchDBIDRepresentation]];
-
-            if (![doc propertyForKey:@"cbtdb_type"]) {
-                NSLog(@"[debug] skip deleting document: %@", object.objectID);
-                return;
-            }
+            [properties addObject:contents];
+            [documentIDToObjectID setObject:object.objectID forKey:[contents valueForKey:@"_id"]];
+        }
+        
+        op = [self.database putChanges:properties];
+        success = [op wait];
+        if (success) {
+            NSArray *result = op.resultObject;
             
-            RESTOperation* op = [doc DELETE];
-            BOOL success = [op wait];
-            if (!success) {
-                if (error) *error = [NSError errorWithDomain:kCBTDBIncrementalStoreErrorDomain
-                                                        code:2 userInfo:@{
-                            NSLocalizedFailureReasonErrorKey: @"Error deleting object",
-                                        NSUnderlyingErrorKey:op.error
-                                     }];
+            for (CouchDocument *doc in result) {
+                NSManagedObjectID *objectID = [documentIDToObjectID objectForKey:doc.documentID];
+                NSManagedObject *object = [context objectWithID:objectID];
+                
+                [object willChangeValueForKey:@"cbtdbRev"];
+                [object setPrimitiveValue:doc.currentRevisionID forKey:@"cbtdbRev"];
+                [object didChangeValueForKey:@"cbtdbRev"];
+                
+                [context refreshObject:object mergeChanges:YES];
             }
-        }];
+        } else {
+            if (error) *error = [NSError errorWithDomain:kCBTDBIncrementalStoreErrorDomain
+                                                    code:2 userInfo:@{
+                        NSLocalizedFailureReasonErrorKey: @"Error putting updated objects",
+                                    NSUnderlyingErrorKey:op.error
+                                 }];
+        }
+        
+        
+        // Objects that were deleted from the calling context...
+        properties = [NSMutableArray arrayWithCapacity:[save deletedObjects].count];
+        
+        for (NSManagedObject *object in [save deletedObjects]) {
+            NSDictionary *contents = @{@"_id": [object.objectID couchDBIDRepresentation]};
+            [properties addObject:contents];
+        }
+        
+        op = [self.database deleteDocuments:properties];
+        success = [op wait];
+        if (!success) {
+            if (error) *error = [NSError errorWithDomain:kCBTDBIncrementalStoreErrorDomain
+                                                    code:2 userInfo:@{
+                        NSLocalizedFailureReasonErrorKey: @"Error deleting objects",
+                                    NSUnderlyingErrorKey:op.error
+                                 }];
+        }
 
         return @[];
         
