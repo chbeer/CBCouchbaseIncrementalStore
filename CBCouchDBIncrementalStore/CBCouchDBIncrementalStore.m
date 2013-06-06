@@ -42,10 +42,9 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
 @interface CBCouchDBIncrementalStore ()
 {
     NSMutableDictionary *_fetchRequestResultCache;
-    
-    NSMutableArray *_fetchViewNames;
-    
     NSMutableArray *_coalescedChanges;
+    
+    NSMutableDictionary *_entityAndPropertyToFetchViewName;    
 }
 
 @property (nonatomic, strong, readwrite) CouchServer   *server;
@@ -97,7 +96,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
     
     _fetchRequestResultCache = [[NSMutableDictionary alloc] init];
     
-    _fetchViewNames = [[NSMutableArray alloc] init];
+    _entityAndPropertyToFetchViewName = [[NSMutableDictionary alloc] init];
     
     _coalescedChanges = [[NSMutableArray alloc] init];
     
@@ -721,15 +720,13 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         return nil;
     }
     
-    NSString *viewName = [self viewNameForFetchingFromEntity:entity.name byProperty:comparisonPredicate.leftExpression.keyPath];
-//    value = [self newObjectIDForEntity:rel.destinationEntity referenceObject:value];
-//    }
-    
-    CouchDesignDocument* design = [self.database designDocumentWithName:kCBTDBDesignName];
-    
-    if (![_fetchViewNames containsObject:viewName]) {
+    NSString *key =[NSString stringWithFormat:@"%@_%@", entity.name, comparisonPredicate.leftExpression.keyPath];
+    NSString *viewName = [_entityAndPropertyToFetchViewName objectForKey:key];
+    if (!viewName) {
         return nil;
     }
+    
+    CouchDesignDocument* design = [self.database designDocumentWithName:kCBTDBDesignName];
     
     CouchQuery *query = [design queryViewNamed:viewName];
     if (comparisonPredicate.predicateOperatorType == NSEqualToPredicateOperatorType) {
@@ -747,14 +744,12 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
             rightValue = [[self replaceManagedObjectsWithCouchIDInSet:rightValue] allObjects];
         } else if ([rightValue isKindOfClass:[NSArray class]]) {
             rightValue = [self replaceManagedObjectsWithCouchIDInArray:rightValue];
-        } else {
+        } else if (rightValue != nil) {
             NSAssert(NO, @"Wrong value in IN predicate rhv");
         }
         query.keys = rightValue;
     }
     query.prefetch = YES;
-
-    NSLog(@"[tdis] -->-> %@", viewName);
 
     return query;
 }
@@ -968,6 +963,8 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                         destEntityCompare = [NSString stringWithFormat:@"doc.cbtdb_type == '%@'", rel.destinationEntity.name];
                     }
                     
+                    NSString *inverseRelNameLower = [rel.inverseRelationship.name lowercaseString];
+                    
                     NSString *map = [NSString stringWithTemplate:@"function(doc) { if (${destEntityCompare} && doc.${entityNameLower}) { emit(doc.${destRelationshipNameLower}, {'_id': doc._id, 'cbtdb_type': doc.cbtdb_type}); } };"
                                                           values:@{
                                      @"entityName": entity.name,
@@ -975,11 +972,22 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                                      @"entityNameLower": [entity.name lowercaseString],
                                      @"destEntityNameLower": [rel.destinationEntity.name lowercaseString],
                                      @"destEntityCompare": destEntityCompare,
-                                     @"destRelationshipNameLower": rel.inverseRelationship.name
+                                     @"destRelationshipNameLower": inverseRelNameLower
                                      }];
                     
                     [design defineViewNamed:viewName
                                         map:map];
+                    
+                    
+                    // remember view for mapping super-entity and all sub-entities
+                    [_entityAndPropertyToFetchViewName setObject:viewName
+                                                          forKey:[NSString stringWithFormat:@"%@_%@", rel.destinationEntity.name, inverseRelNameLower]];
+                    for (NSString *entityName in [rel.destinationEntity.subentities valueForKeyPath:@"name"]) {
+                        [_entityAndPropertyToFetchViewName setObject:viewName
+                                                              forKey:[NSString stringWithFormat:@"%@_%@", entityName, inverseRelNameLower]];
+                    }
+                    
+
                     
                 }
                 
@@ -1055,6 +1063,9 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                                            }
                                        }
                                         version:@"1.0"];
+                        [_entityAndPropertyToFetchViewName setObject:viewName
+                                                              forKey:[NSString stringWithFormat:@"%@_%@", destEntityName, inverseRelNameLower]];
+
                     } else {
                         [design defineViewNamed:viewName
                                        mapBlock:^(NSDictionary *doc, TDMapEmitBlock emit) {
@@ -1063,6 +1074,15 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                                            }
                                        }
                                         version:@"1.0"];
+
+                        // remember view for mapping super-entity and all sub-entities
+                        [_entityAndPropertyToFetchViewName setObject:viewName
+                                                              forKey:[NSString stringWithFormat:@"%@_%@", rel.destinationEntity.name, inverseRelNameLower]];
+                        for (NSString *entityName in entityNames) {
+                            [_entityAndPropertyToFetchViewName setObject:viewName
+                                                                  forKey:[NSString stringWithFormat:@"%@_%@", entityName, inverseRelNameLower]];
+                        }
+                        
                     }
                     
                 }
@@ -1218,17 +1238,24 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
     NSString *viewName = [NSString stringWithFormat:kCBTDBFetchEntityByPropertyViewNameFormat, [entityName lowercaseString], propertyName];
     return viewName;
 }
+
 - (void) defineFetchViewForEntity:(NSString*)entityName
                        byProperty:(NSString*)propertyName
-                         mapBlock:(TDMapBlock)mapBlock
-                          version:(NSString*)version
 {
     NSString *viewName = [self viewNameForFetchingFromEntity:entityName byProperty:propertyName];
     CouchDesignDocument* design = [self.database designDocumentWithName:kCBTDBDesignName];
+    
     [design defineViewNamed:viewName
-                   mapBlock:mapBlock
-                    version:version];
-    [_fetchViewNames addObject:viewName];
+                   mapBlock:^(NSDictionary *doc, TDMapEmitBlock emit) {
+                       NSString* type = [doc objectForKey:kCBTDBTypeKey];
+                       if ([type isEqual:entityName] && [doc objectForKey:propertyName]) {
+                           emit([doc objectForKey:propertyName], doc);
+                       }
+                   }
+                    version:@"1.0"];
+    
+    [_entityAndPropertyToFetchViewName setObject:viewName
+                                          forKey:[NSString stringWithFormat:@"%@_%@", entityName, propertyName]];
 }
 
 @end

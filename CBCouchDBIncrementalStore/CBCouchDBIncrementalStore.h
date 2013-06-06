@@ -18,10 +18,6 @@ extern NSString * const kCBTDBFetchEntityByPropertyViewNameFormat;
 @class CouchServer;
 @class CouchDatabase;
 
-// redefinition of blocks so we don't need to import the header (which would result in 
-typedef void (^TDMapEmitBlock_)(id key, id value);
-typedef void (^TDMapBlock_)(NSDictionary* doc, TDMapEmitBlock_ emit);
-
 
 @interface CBCouchDBIncrementalStore : NSIncrementalStore
 
@@ -37,9 +33,7 @@ typedef void (^TDMapBlock_)(NSDictionary* doc, TDMapEmitBlock_ emit);
 - (NSArray*) replications;
 
 - (void) defineFetchViewForEntity:(NSString*)entityName
-                       byProperty:(NSString*)propertyName
-                         mapBlock:(TDMapBlock_)mapBlock
-                          version:(NSString*)version;
+                       byProperty:(NSString*)propertyName;
 
 @end
 
