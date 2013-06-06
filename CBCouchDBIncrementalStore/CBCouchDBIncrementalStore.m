@@ -324,7 +324,12 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                     NSDictionary *properties = row.documentProperties;
                     
                     if (!fetch.predicate || [fetch.predicate evaluateWithObject:properties]) {
-                        [array addObject:properties];
+                        
+                        if (fetch.propertiesToFetch) {
+                            [array addObject:[properties dictionaryWithValuesForKeys:fetch.propertiesToFetch]];
+                        } else {
+                            [array addObject:properties];
+                        }
                     }
                 }
                 result = array;
