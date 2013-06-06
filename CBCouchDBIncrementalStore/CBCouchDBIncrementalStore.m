@@ -355,7 +355,9 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         }
         
         CFAbsoluteTime end = CFAbsoluteTimeGetCurrent();
+#ifndef PROFILE
         if (end - start > 3) {
+#endif
             NSLog(@"[tdis] fetch request ---------------- \n"
                   "[tdis]   entity-name:%@\n"
                   "[tdis]   resultType:%@\n"
@@ -363,7 +365,9 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                   "[tdis] --> took %f seconds\n"
                   "[tids]---------------- ",
                   entityName, CBResultTypeName(resultType), fetch.predicate, end - start);
+#ifndef PROFILE
         }
+#endif
         
         
         return result;
