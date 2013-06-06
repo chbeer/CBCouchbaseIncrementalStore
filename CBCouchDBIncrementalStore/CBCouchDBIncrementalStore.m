@@ -693,7 +693,8 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
     if (!predicate) return nil;
     
     if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {
-        if (((NSCompoundPredicate*)predicate).subpredicates.count == 1) {
+        if (((NSCompoundPredicate*)predicate).subpredicates.count == 1 ||
+            ((NSCompoundPredicate*)predicate).compoundPredicateType == NSAndPredicateType) {
             predicate = ((NSCompoundPredicate*)predicate).subpredicates[0];
         } else {
             return nil;
