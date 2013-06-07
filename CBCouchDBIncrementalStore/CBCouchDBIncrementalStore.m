@@ -394,7 +394,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         
         CFAbsoluteTime end = CFAbsoluteTimeGetCurrent();
 #ifndef PROFILE
-        if (end - start > 3) {
+        if (end - start > 1) {
 #endif
             NSLog(@"[tdis] fetch request ---------------- \n"
                   "[tdis]   entity-name:%@\n"
