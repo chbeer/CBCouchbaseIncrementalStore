@@ -1272,7 +1272,7 @@
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				INFOPLIST_FILE = CBCoucbaseBIncrementalStore/Info.plist;
+				INFOPLIST_FILE = CBCouchbaseIncrementalStore/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = CBCouchbaseIncrementalStore;
 				SDKROOT = macosx;
@@ -1298,7 +1298,7 @@
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				INFOPLIST_FILE = CBCoucbaseBIncrementalStore/Info.plist;
+				INFOPLIST_FILE = CBCouchbaseIncrementalStore/Info.plist;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = CBCouchbaseIncrementalStore;
 				SDKROOT = macosx;
