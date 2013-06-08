@@ -4,3 +4,6 @@
 [submodule "Libraries/CouchCocoa"]
 	path = Libraries/CouchCocoa
 	url = https://github.com/couchbaselabs/CouchCocoa.git
+[submodule "Libraries/CouchbaseLite-iOS"]
+	path = Libraries/CouchbaseLite-iOS
+	url = https://github.com/couchbase/couchbase-lite-ios.git

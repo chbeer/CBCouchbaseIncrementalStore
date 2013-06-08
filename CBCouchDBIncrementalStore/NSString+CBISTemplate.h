@@ -1,5 +1,5 @@
 //
-//  NSString+CBTDBTemplate.h
+//  NSString+CBISTemplate.h
 //  CBCouchDBIncrementalStore
 //
 //  Created by Christian Beer on 16.06.10.
@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 
-@interface NSString (CBTDBTemplate)
+@interface NSString (CBISTemplate)
 
 + (NSString*) stringWithTemplate:(NSString*)template values:(NSDictionary*)dict;
 - (NSString*) stringAsTemplateWithValues:(NSDictionary*)dict;

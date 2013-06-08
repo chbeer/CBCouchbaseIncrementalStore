@@ -1,14 +1,14 @@
 //
-//  NSString+CBTDBTemplate.m
+//  NSString+CBISTemplate.m
 //  CBCouchDBIncrementalStore
 //
 //  Created by Christian Beer on 16.06.10.
 //  Copyright 2010 kaufDA - Juno Internet GmbH . All rights reserved.
 //
 
-#import "NSString+CBTDBTemplate.h"
+#import "NSString+CBISTemplate.h"
 
-@implementation NSString (CBTDBTemplate)
+@implementation NSString (CBISTemplate)
 
 + (NSString*) stringWithTemplate:(NSString*)template values:(NSDictionary*)dict {
     NSMutableString *result = [NSMutableString stringWithString:template];

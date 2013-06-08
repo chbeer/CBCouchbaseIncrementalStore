@@ -10,15 +10,24 @@
 
 #import <CouchCocoa/CouchCocoa.h>
 
-#import "CBCouchDBIncrementalStore.h"
+#import "CBCouchCocoaIncrementalStore.h"
 
 #import "Entry.h"
 #import "Subentry.h"
 
+
+@interface CBCouchCocoaIncrementalStore ()
+
+@property (nonatomic, strong, readwrite) CouchDatabase *database;
+
+@end
+
+
+
 @implementation CBCouchDBIncrementalStore_Unit_Test
 {
-    NSManagedObjectContext      *_managedObjectContext;
-    CBCouchDBIncrementalStore   *_persistentStore;
+    NSManagedObjectContext          *_managedObjectContext;
+    CBCouchCocoaIncrementalStore    *_persistentStore;
 }
 
 - (void)setUp
@@ -188,22 +197,24 @@
     STAssertEquals(result.count, (NSUInteger)1, @"Fetch request should return one result that's a number");
     STAssertTrue([result[0] intValue] > 0, @"Database should contain more than zero entries (if the testCreateAndUpdate was run)");
 
+    count = [result[0] intValue];
+    
     fetchRequest.resultType = NSDictionaryResultType;
     
     result = [[self managedObjectContext] executeFetchRequest:fetchRequest error:&error];
-    STAssertTrue(result.count != count, @"Fetch request should not return same result count as number fetch");
+    STAssertTrue(result.count == count, @"Fetch request should return same result count as number fetch");
     STAssertTrue([result[0] isKindOfClass:[NSDictionary class]], @"Results are not NSDictionaries");
 
     fetchRequest.resultType = NSManagedObjectIDResultType;
     
     result = [[self managedObjectContext] executeFetchRequest:fetchRequest error:&error];
-    STAssertTrue(result.count != count, @"Fetch request should not return same result count as number fetch");
+    STAssertTrue(result.count == count, @"Fetch request should return same result count as number fetch");
     STAssertTrue([result[0] isKindOfClass:[NSManagedObjectID class]], @"Results are not NSManagedObjectIDs");
 
     fetchRequest.resultType = NSManagedObjectResultType;
     
     result = [[self managedObjectContext] executeFetchRequest:fetchRequest error:&error];
-    STAssertTrue(result.count != count, @"Fetch request should not return same result count as number fetch");
+    STAssertTrue(result.count == count, @"Fetch request should return same result count as number fetch");
     STAssertTrue([result[0] isKindOfClass:[NSManagedObject class]], @"Results are not NSManagedObjects");
 }
 
@@ -219,7 +230,7 @@
     
     NSManagedObjectModel* model = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
     
-    [CBCouchDBIncrementalStore updateManagedObjectModel:model];
+    [CBCouchCocoaIncrementalStore updateManagedObjectModel:model];
     
     NSPersistentStoreCoordinator* coordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:model];
     STAssertNotNil(coordinator, @"Could not init persistent store coordinator: %@", error);
@@ -229,7 +240,7 @@
     NSURL *databaseURL = [[NSURL fileURLWithPath:databasePath] URLByAppendingPathComponent:@"test-eins"];
 //    NSURL *databaseURL = [NSURL URLWithString:@"http://127.0.0.1:5984/test-eins"];
     
-    NSPersistentStore *persistenStore = [coordinator addPersistentStoreWithType:[CBCouchDBIncrementalStore type]
+    NSPersistentStore *persistenStore = [coordinator addPersistentStoreWithType:[CBCouchCocoaIncrementalStore type]
                                                                   configuration:nil URL:databaseURL
                                                                         options:nil error:&error];
     STAssertNotNil(persistenStore, @"Could not add persistent store: %@", error);
@@ -237,7 +248,7 @@
     NSManagedObjectContext* managedObjectContext= [[NSManagedObjectContext alloc] init];
     managedObjectContext.persistentStoreCoordinator = coordinator;
     
-    _persistentStore = persistenStore;
+    _persistentStore = (CBCouchCocoaIncrementalStore*)persistenStore;
     _managedObjectContext = managedObjectContext;
     
     return _managedObjectContext;
