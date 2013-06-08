@@ -56,6 +56,8 @@ NSManagedObjectContext* managedObjectContext= [[NSManagedObjectContext alloc] in
 managedObjectContext.persistentStoreCoordinator = coordinator;
 ```
 
+The important part is to use ``[CBCouchCocoaIncrementalStore type]`` for the persistent storage type.
+
 
 # Replication #
 
