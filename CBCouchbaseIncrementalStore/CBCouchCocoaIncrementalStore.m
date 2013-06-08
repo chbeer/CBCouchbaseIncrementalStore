@@ -709,7 +709,9 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         } else if ([rightValue isKindOfClass:[NSManagedObject class]]) {
             rightValue = [[rightValue objectID] couchDBIDRepresentation];
         }
-        query.keys = @[ rightValue ];
+        if (rightValue) {
+            query.keys = @[ rightValue ];
+        }
         
     } else if (comparisonPredicate.predicateOperatorType == NSInPredicateOperatorType) {
         id rightValue = [comparisonPredicate.rightExpression constantValue];
@@ -720,7 +722,9 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         } else if (rightValue != nil) {
             NSAssert(NO, @"Wrong value in IN predicate rhv");
         }
-        query.keys = rightValue;
+        if (rightValue) {
+            query.keys = rightValue;
+        }
     }
     query.prefetch = YES;
     
