@@ -94,7 +94,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         }
     }];
     
-    CouchDocument *doc = [self.database documentWithID:@"cbtdb_metadata"];
+    CouchDocument *doc = [self.database documentWithID:kCBISMetadataDocumentID];
     
     BOOL success = NO;
     
@@ -107,7 +107,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                      };
         [self setMetadata:metaData];
         
-        CouchDocument *doc = [self.database documentWithID:@"cbtdb_metadata"];
+        CouchDocument *doc = [self.database documentWithID:kCBISMetadataDocumentID];
         success = [[doc putProperties:metaData] wait];
         
     } else {
@@ -164,9 +164,9 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                 
                 [changedEntities addObject:object.entity.name];
                 
-                [object willChangeValueForKey:@"cbtdbRev"];
-                [object setPrimitiveValue:doc.currentRevisionID forKey:@"cbtdbRev"];
-                [object didChangeValueForKey:@"cbtdbRev"];
+                [object willChangeValueForKey:kCBISCurrentRevisionAttributeName];
+                [object setPrimitiveValue:doc.currentRevisionID forKey:kCBISCurrentRevisionAttributeName];
+                [object didChangeValueForKey:kCBISCurrentRevisionAttributeName];
                 
                 [object willChangeValueForKey:@"objectID"];
                 [context obtainPermanentIDsForObjects:@[object] error:nil];
@@ -207,9 +207,9 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                     NSManagedObjectID *objectID = [documentIDToObjectID objectForKey:doc.documentID];
                     NSManagedObject *object = [context objectWithID:objectID];
                     
-                    [object willChangeValueForKey:@"cbtdbRev"];
-                    [object setPrimitiveValue:doc.currentRevisionID forKey:@"cbtdbRev"];
-                    [object didChangeValueForKey:@"cbtdbRev"];
+                    [object willChangeValueForKey:kCBISCurrentRevisionAttributeName];
+                    [object setPrimitiveValue:doc.currentRevisionID forKey:kCBISCurrentRevisionAttributeName];
+                    [object didChangeValueForKey:kCBISCurrentRevisionAttributeName];
                     
                     [context refreshObject:object mergeChanges:NO];
                 }
@@ -283,7 +283,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
             case NSDictionaryResultType: {
                 CouchDesignDocument* design = [self.database designDocumentWithName:kCBISDesignName];
                 
-                CouchQuery* query = [design queryViewNamed:@"cbtdb_all_by_type"];
+                CouchQuery* query = [design queryViewNamed:kCBISAllByTypeViewName];
                 query.keys = @[ entityName ];
                 query.prefetch = YES;
                 
@@ -312,7 +312,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                 } else {
                     CouchDesignDocument* design = [self.database designDocumentWithName:kCBISDesignName];
                     
-                    CouchQuery* query = [design queryViewNamed:@"cbtdb_all_by_type"];
+                    CouchQuery* query = [design queryViewNamed:kCBISAllByTypeViewName];
                     query.keys = @[ entityName ];
                     query.prefetch = NO;
                     
@@ -428,19 +428,19 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                                 [compare appendString:@" || "];
                             }
                             
-                            [compare appendFormat:@"doc.cbtdb_type == '%@'", subentity.name];
+                            [compare appendFormat:@"doc.cbis_type == '%@'", subentity.name];
                             
                             first = NO;
                         }
                         [compare appendString:@")"];
                         destEntityCompare = compare;
                     } else {
-                        destEntityCompare = [NSString stringWithFormat:@"doc.cbtdb_type == '%@'", rel.destinationEntity.name];
+                        destEntityCompare = [NSString stringWithFormat:@"doc.cbis_type == '%@'", rel.destinationEntity.name];
                     }
                     
                     NSString *inverseRelNameLower = [rel.inverseRelationship.name lowercaseString];
                     
-                    NSString *map = [NSString stringWithTemplate:@"function(doc) { if (${destEntityCompare} && doc.${entityNameLower}) { emit(doc.${destRelationshipNameLower}, {'_id': doc._id, 'cbtdb_type': doc.cbtdb_type}); } };"
+                    NSString *map = [NSString stringWithTemplate:@"function(doc) { if (${destEntityCompare} && doc.${entityNameLower}) { emit(doc.${destRelationshipNameLower}, {'_id': doc._id, 'cbis_type': doc.cbis_type}); } };"
                                                           values:@{
                                      @"entityName": entity.name,
                                      @"destEntityName": rel.destinationEntity.name,
@@ -479,19 +479,19 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
     for (NSString *entityName in subentitiesToSuperentities) {
         NSString *superentityName = [subentitiesToSuperentities objectForKey:entityName];
         if (!first) [superentityMapping appendString:@" else "];
-        [superentityMapping appendFormat:@"if (doc.cbtdb_type == '%@') emit('%@', doc);", entityName, superentityName];
+        [superentityMapping appendFormat:@"if (doc.cbis_type == '%@') emit('%@', doc);", entityName, superentityName];
         
         if (!first) [superentityToIDMapping appendString:@" else "];
-        [superentityToIDMapping appendFormat:@"if (doc.cbtdb_type == '%@') emit('%@', {'_id': doc._id, 'cbtdb_type': doc.cbtdb_type});", entityName, superentityName];
+        [superentityToIDMapping appendFormat:@"if (doc.cbis_type == '%@') emit('%@', {'_id': doc._id, 'cbis_type': doc.cbis_type});", entityName, superentityName];
         first = NO;
     }
     
     NSString *map;
-    map = [NSString stringWithFormat:@"function(doc){if (doc.cbtdb_type) emit(doc.cbtdb_type,doc); %@ };", superentityMapping];
-    [design defineViewNamed:@"cbtdb_all_by_type"
+    map = [NSString stringWithFormat:@"function(doc){if (doc.cbis_type) emit(doc.cbis_type,doc); %@ };", superentityMapping];
+    [design defineViewNamed:kCBISAllByTypeViewName
                         map:map];
-    map = [NSString stringWithFormat:@"function(doc){if (doc.cbtdb_type) emit(doc.cbtdb_type,{'_id': doc._id, 'cbtdb_type': doc.cbtdb_type}); %@ };", superentityToIDMapping];
-    [design defineViewNamed:@"cbtdb_id_by_type"
+    map = [NSString stringWithFormat:@"function(doc){if (doc.cbis_type) emit(doc.cbis_type,{'_id': doc._id, 'cbis_type': doc.cbis_type}); %@ };", superentityToIDMapping];
+    [design defineViewNamed:kCBISIDByTypeViewName
                         map:map];
 }
 
@@ -565,7 +565,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         }
     }
     
-    [design defineViewNamed:@"cbtdb_all_by_type"
+    [design defineViewNamed:kCBISAllByTypeViewName
                    mapBlock:^(NSDictionary *doc, TDMapEmitBlock emit) {
                        NSString* type = [doc objectForKey: kCBISTypeKey];
                        if (type) emit(type, doc);
@@ -576,7 +576,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                        }
                    }
                     version:@"1.0"];
-    [design defineViewNamed:@"cbtdb_id_by_type"
+    [design defineViewNamed:kCBISIDByTypeViewName
                    mapBlock:^(NSDictionary *doc, TDMapEmitBlock emit) {
                        NSString* type = [doc objectForKey:kCBISTypeKey];
                        if (type) {
@@ -622,7 +622,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
     CouchQuery* query = [self queryForFetchRequest:fetch onEntity:entity];
     if (!query) {
         CouchDesignDocument* design = [self.database designDocumentWithName:kCBISDesignName];
-        query = [design queryViewNamed:@"cbtdb_all_by_type"];
+        query = [design queryViewNamed:kCBISAllByTypeViewName];
         query.keys = @[ entity.name ];
         query.prefetch = fetch.predicate != nil;
     }
@@ -815,7 +815,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         if (range.location == NSNotFound) return;
         
         NSString *type = [ident substringToIndex:range.location];
-        if ([type isEqual:@"cbtdb"]) return;
+        if ([type isEqual:@"cbis"]) return;
         
         
         NSString *reference = [ident substringFromIndex:range.location + 1];
@@ -833,7 +833,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
             return;
         }
         
-        //    if ([type hasPrefix:@"cbtdb_"] || (!deleted && ![document propertyForKey:@"cbtdb_type"])) return;
+        //    if ([type hasPrefix:@"cbtdb_"] || (!deleted && ![document propertyForKey:@"cbis_type"])) return;
         
         //    NSLog(@"[info] changed : %@ : %@", type, ident);
         

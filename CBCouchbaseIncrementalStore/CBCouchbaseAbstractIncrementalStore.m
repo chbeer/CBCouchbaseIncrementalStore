@@ -19,6 +19,9 @@ NSString * const kCBISTypeKey = @"cbis_type";
 NSString * const kCBISCurrentRevisionAttributeName = @"cbisRev";
 
 NSString * const kCBISDesignName = @"cbisDesign";
+NSString * const kCBISMetadataDocumentID = @"cbis_metadata";
+NSString * const kCBISAllByTypeViewName = @"cbis_all_by_type";
+NSString * const kCBISIDByTypeViewName = @"cbis_id_by_type";
 NSString * const kCBISFetchEntityByPropertyViewNameFormat = @"cbis_fetch_%@_by_%@";
 
 NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHasBeenChangedInStoreNotification";

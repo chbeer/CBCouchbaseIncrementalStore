@@ -11,6 +11,7 @@
 #import <CouchbaseLite/CouchbaseLite.h>
 
 
+
 @interface CBCouchbaseLiteIncrementalStore ()
 
 @property (nonatomic, strong) CBLDatabase *database;
@@ -71,7 +72,7 @@
 //        }
 //    }];
     
-    CBLDocument *doc = [self.database documentWithID:@"cbtdb_metadata"];
+    CBLDocument *doc = [self.database documentWithID:kCBISMetadataDocumentID];
     
     BOOL success = NO;
     
@@ -84,7 +85,7 @@
                      };
         [self setMetadata:metaData];
         
-        CBLDocument *doc = [self.database documentWithID:@"cbtdb_metadata"];
+        CBLDocument *doc = [self.database documentWithID:kCBISMetadataDocumentID];
         success = [doc putProperties:metaData error:error] != nil;
         
     } else {
@@ -128,9 +129,9 @@
             if ([doc putProperties:contents error:&localError]) {
                 [changedEntities addObject:object.entity.name];
                 
-                [object willChangeValueForKey:@"cbtdbRev"];
-                [object setPrimitiveValue:doc.currentRevisionID forKey:@"cbtdbRev"];
-                [object didChangeValueForKey:@"cbtdbRev"];
+                [object willChangeValueForKey:kCBISCurrentRevisionAttributeName];
+                [object setPrimitiveValue:doc.currentRevisionID forKey:kCBISCurrentRevisionAttributeName];
+                [object didChangeValueForKey:kCBISCurrentRevisionAttributeName];
                 
                 [object willChangeValueForKey:@"objectID"];
                 [context obtainPermanentIDsForObjects:@[object] error:nil];
@@ -161,9 +162,9 @@
             if ([doc putProperties:contents error:&localError]) {
                 [changedEntities addObject:object.entity.name];
                 
-                [object willChangeValueForKey:@"cbtdbRev"];
-                [object setPrimitiveValue:doc.currentRevisionID forKey:@"cbtdbRev"];
-                [object didChangeValueForKey:@"cbtdbRev"];
+                [object willChangeValueForKey:kCBISCurrentRevisionAttributeName];
+                [object setPrimitiveValue:doc.currentRevisionID forKey:kCBISCurrentRevisionAttributeName];
+                [object didChangeValueForKey:kCBISCurrentRevisionAttributeName];
                 
                 [context refreshObject:object mergeChanges:YES];
             } else {
@@ -226,7 +227,7 @@
                 break;
                 
             case NSDictionaryResultType: {
-                CBLView *view = [self.database existingViewNamed:@"cbtdb_all_by_type"];
+                CBLView *view = [self.database existingViewNamed:kCBISAllByTypeViewName];
                 CBLQuery* query = [view query];
                 query.keys = @[ entityName ];
                 query.prefetch = YES;
@@ -254,7 +255,7 @@
                     NSArray *array = [self queryObjectsOfEntity:entity byFetchRequest:fetch inContext:context];
                     count = array.count;
                 } else {
-                    CBLView *view = [self.database existingViewNamed:@"cbtdb_all_by_type"];
+                    CBLView *view = [self.database existingViewNamed:kCBISAllByTypeViewName];
                     CBLQuery* query = [view query];
                     query.keys = @[ entityName ];
                     query.prefetch = NO;
@@ -410,7 +411,7 @@
         }
     }
     
-    CBLView *view = [self.database viewNamed:@"cbtdb_all_by_type"];
+    CBLView *view = [self.database viewNamed:kCBISAllByTypeViewName];
     [view setMapBlock:^(NSDictionary *doc, CBLMapEmitBlock emit) {
                        NSString* type = [doc objectForKey: kCBISTypeKey];
                        if (type) emit(type, doc);
@@ -421,7 +422,7 @@
                        }
                    }
                     version:@"1.0"];
-    view = [self.database viewNamed:@"cbtdb_id_by_type"];
+    view = [self.database viewNamed:kCBISIDByTypeViewName];
     [view setMapBlock:^(NSDictionary *doc, CBLMapEmitBlock emit) {
                        NSString* type = [doc objectForKey:kCBISTypeKey];
                        if (type) {
@@ -465,7 +466,7 @@
     
     CBLQuery* query = [self queryForFetchRequest:fetch onEntity:entity];
     if (!query) {
-        CBLView *view = [self.database existingViewNamed:@"cbtdb_all_by_type"];
+        CBLView *view = [self.database existingViewNamed:kCBISAllByTypeViewName];
         query = [view query];
         query.keys = @[ entity.name ];
         query.prefetch = fetch.predicate != nil;
@@ -654,7 +655,7 @@
         if (range.location == NSNotFound) return;
         
         NSString *type = [ident substringToIndex:range.location];
-        if ([type isEqual:@"cbtdb"]) return;
+        if ([type isEqual:@"cbis"]) return;
         
         
         NSString *reference = [ident substringFromIndex:range.location + 1];
@@ -662,8 +663,6 @@
         [changedEntitites addObject:type];
         
         if (deleted) {
-            //        NSLog(@"[info] deleted : %@ : %@", type, ident);
-            
             NSEntityDescription *entity = [self.persistentStoreCoordinator.managedObjectModel.entitiesByName objectForKey:type];
             NSManagedObjectID *objectID = [self newObjectIDForEntity:entity referenceObject:reference];
             
@@ -671,10 +670,6 @@
             
             return;
         }
-        
-        //    if ([type hasPrefix:@"cbtdb_"] || (!deleted && ![document propertyForKey:@"cbtdb_type"])) return;
-        
-        //    NSLog(@"[info] changed : %@ : %@", type, ident);
         
         NSEntityDescription *entity = [self.persistentStoreCoordinator.managedObjectModel.entitiesByName objectForKey:type];
         NSManagedObjectID *objectID = [self newObjectIDForEntity:entity referenceObject:reference];

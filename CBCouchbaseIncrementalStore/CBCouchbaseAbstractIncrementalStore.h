@@ -10,8 +10,12 @@
 
 extern NSString * const kCBISIncrementalStoreErrorDomain;
 extern NSString * const kCBISTypeKey;
+extern NSString * const kCBISCurrentRevisionAttributeName;
 extern NSString * const kCBISDesignName;
+extern NSString * const kCBISMetadataDocumentID;
 extern NSString * const kCBISObjectHasBeenChangedInStoreNotification;
+extern NSString * const kCBISAllByTypeViewName;
+extern NSString * const kCBISIDByTypeViewName;
 extern NSString * const kCBISFetchEntityByPropertyViewNameFormat;
 
 @class CouchServer;
