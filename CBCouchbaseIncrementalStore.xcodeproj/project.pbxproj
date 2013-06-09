@@ -22,7 +22,6 @@
 		AA11B0AB175C9DBF001DF3E3 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA11B099175C9D83001DF3E3 /* CFNetwork.framework */; };
 		AA566135175B58BA00CDD821 /* CBCouchCocoaIncrementalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = AA566134175B58BA00CDD821 /* CBCouchCocoaIncrementalStore.m */; };
 		AA5D8648176271130043DEB0 /* CouchbaseLite.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5D8647176271130043DEB0 /* CouchbaseLite.framework */; };
-		AA5D8649176271130043DEB0 /* CouchbaseLite.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5D8647176271130043DEB0 /* CouchbaseLite.framework */; };
 		AA5D866F1762F9CB0043DEB0 /* CBCouchbaseAbstractIncrementalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = AA82ED6D1761D81D00D3FFBF /* CBCouchbaseAbstractIncrementalStore.m */; };
 		AA5D86711762F9F70043DEB0 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5D86701762F9F70043DEB0 /* UIKit.framework */; };
 		AA7624DD17608FF10046FB93 /* CBCouchCocoaIncrementalStore.h in Headers */ = {isa = PBXBuildFile; fileRef = AA566133175B58BA00CDD821 /* CBCouchCocoaIncrementalStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -401,7 +400,6 @@
 				AA985AF5175F221D00207739 /* Cocoa.framework in Frameworks */,
 				AA985B25175F240E00207739 /* TouchDB.framework in Frameworks */,
 				AA985B26175F240E00207739 /* CouchCocoa.framework in Frameworks */,
-				AA5D8649176271130043DEB0 /* CouchbaseLite.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
