@@ -815,10 +815,10 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         BOOL deleted = [change[@"deleted"] boolValue];
         
         NSRange range = [ident rangeOfString:@"_"];
-        if (range.location == NSNotFound) return;
+        if (range.location == NSNotFound) continue;
         
         NSString *type = [ident substringToIndex:range.location];
-        if ([type isEqual:@"cbis"]) return;
+        if ([type isEqual:@"cbis"]) continue;
         
         
         NSString *reference = [ident substringFromIndex:range.location + 1];
