@@ -381,7 +381,8 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         NSMutableArray *result = [NSMutableArray arrayWithCapacity:query.rows.count];
         for (CouchQueryRow* row in query.rows) {
             [result addObject:[self _newObjectIDForEntity:relationship.destinationEntity
-                                     managedObjectContext:context couchID:[row.value objectForKey:@"_id"]
+                                     managedObjectContext:context
+                                                  couchID:[row.value objectForKey:@"_id"]
                                                 couchType:[row.value objectForKey:kCBISTypeKey]]];
         }
         
@@ -642,9 +643,11 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
     NSMutableArray *array = [NSMutableArray arrayWithCapacity:query.rows.count];
     for (CouchQueryRow *row in query.rows) {
         if (!fetch.predicate || [self _evaluatePredicate:fetch.predicate withEntity:entity properties:row.documentProperties]) {
+            NSString *documentID = [row.value valueForKey:@"_id"];
+            NSString *documentType = [row.value valueForKey:kCBISTypeKey];
             NSManagedObjectID *objectID = [self _newObjectIDForEntity:entity managedObjectContext:context
-                                                              couchID:[row.value valueForKey:@"_id"]
-                                                            couchType:[row.value valueForKey:kCBISTypeKey]];
+                                                              couchID:documentID
+                                                            couchType:documentType];
             NSManagedObject *object = [context objectWithID:objectID];
             [array addObject:object];
         }
@@ -822,26 +825,18 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         
         [changedEntitites addObject:type];
         
-        if (deleted) {
-            //        NSLog(@"[info] deleted : %@ : %@", type, ident);
-            
-            NSEntityDescription *entity = [self.persistentStoreCoordinator.managedObjectModel.entitiesByName objectForKey:type];
-            NSManagedObjectID *objectID = [self newObjectIDForEntity:entity referenceObject:reference];
-            
-            [deletedObjectIDs addObject:objectID];
-            
-            return;
-        }
-        
-        //    if ([type hasPrefix:@"cbtdb_"] || (!deleted && ![document propertyForKey:@"cbis_type"])) return;
-        
-        //    NSLog(@"[info] changed : %@ : %@", type, ident);
-        
         NSEntityDescription *entity = [self.persistentStoreCoordinator.managedObjectModel.entitiesByName objectForKey:type];
         NSManagedObjectID *objectID = [self newObjectIDForEntity:entity referenceObject:reference];
         
-        
-        [updatedObjectIDs addObject:objectID];
+        if (deleted) {
+
+            [deletedObjectIDs addObject:objectID];
+            
+        } else {
+
+            [updatedObjectIDs addObject:objectID];
+            
+        }
     }
     
     NSDictionary *userInfo = @{
