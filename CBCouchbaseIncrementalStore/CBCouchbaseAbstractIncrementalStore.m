@@ -17,7 +17,7 @@
 NSString * const kCBISIncrementalStoreErrorDomain = @"CBISIncrementalStoreErrorDomain";
 NSString * const kCBISTypeKey = @"cbis_type";
 NSString * const kCBISCurrentRevisionAttributeName = @"cbisRev";
-
+NSString * const kCBISManagedObjectIDPrefix = @"cb";
 NSString * const kCBISDesignName = @"cbisDesign";
 NSString * const kCBISMetadataDocumentID = @"cbis_metadata";
 NSString * const kCBISAllByTypeViewName = @"cbis_all_by_type";
@@ -152,7 +152,13 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
         referenceObject = [referenceObject substringFromIndex:1];
     }
     
-    return [super newObjectIDForEntity:entity referenceObject:referenceObject];
+    // we need to prefix the refernceObject with a non-numeric prefix, because of a bug where
+    // referenceObjects starting with a digit will only use the first digit part. As described here:
+    // https://github.com/AFNetworking/AFIncrementalStore/issues/82
+    //
+    referenceObject = [kCBISManagedObjectIDPrefix stringByAppendingString:referenceObject];
+    NSManagedObjectID *objectID = [super newObjectIDForEntity:entity referenceObject:referenceObject];
+    return objectID;
 }
 
 #pragma mark - Replication
@@ -173,6 +179,7 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
 - (void) defineFetchViewForEntity:(NSString*)entityName
                        byProperty:(NSString*)propertyName
 {
+    NSAssert(NO, @"Must be overwritten by subclass");
 }
 
 @end
@@ -353,7 +360,8 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
         entity = [NSEntityDescription entityForName:couchType inManagedObjectContext:context];
     }
     
-    return [self newObjectIDForEntity:entity referenceObject:couchID];
+    NSManagedObjectID *objectID = [self newObjectIDForEntity:entity referenceObject:couchID];
+    return objectID;
 }
 
 #pragma - Caching
@@ -551,7 +559,7 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
 
 - (NSString*) couchDBIDRepresentation;
 {
-    NSString *uuid = [self.URIRepresentation lastPathComponent];
+    NSString *uuid = [[self.URIRepresentation lastPathComponent] substringFromIndex:kCBISManagedObjectIDPrefix.length + 1];
     NSString *ident = [NSString stringWithFormat:@"%@_%@", self.entity.name, uuid];
     return ident;
 }

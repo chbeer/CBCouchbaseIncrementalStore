@@ -11,6 +11,7 @@
 extern NSString * const kCBISIncrementalStoreErrorDomain;
 extern NSString * const kCBISTypeKey;
 extern NSString * const kCBISCurrentRevisionAttributeName;
+extern NSString * const kCBISManagedObjectIDPrefix;
 extern NSString * const kCBISDesignName;
 extern NSString * const kCBISMetadataDocumentID;
 extern NSString * const kCBISObjectHasBeenChangedInStoreNotification;
