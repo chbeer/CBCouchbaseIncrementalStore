@@ -820,12 +820,13 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         NSString *type = [ident substringToIndex:range.location];
         if ([type isEqual:@"cbis"]) continue;
         
-        
         NSString *reference = [ident substringFromIndex:range.location + 1];
-        
+
+        NSEntityDescription *entity = [self.persistentStoreCoordinator.managedObjectModel.entitiesByName objectForKey:type];
+        if (!entity) continue;
+
         [changedEntitites addObject:type];
         
-        NSEntityDescription *entity = [self.persistentStoreCoordinator.managedObjectModel.entitiesByName objectForKey:type];
         NSManagedObjectID *objectID = [self newObjectIDForEntity:entity referenceObject:reference];
         
         if (deleted) {

@@ -155,7 +155,6 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
     // we need to prefix the refernceObject with a non-numeric prefix, because of a bug where
     // referenceObjects starting with a digit will only use the first digit part. As described here:
     // https://github.com/AFNetworking/AFIncrementalStore/issues/82
-    //
     referenceObject = [kCBISManagedObjectIDPrefix stringByAppendingString:referenceObject];
     NSManagedObjectID *objectID = [super newObjectIDForEntity:entity referenceObject:referenceObject];
     return objectID;
@@ -503,6 +502,7 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
             break;
         case NSKeyPathExpressionType: {
             value = [properties objectForKey:expression.keyPath];
+            if (!value) return nil;
             NSPropertyDescription *property = [entity.propertiesByName objectForKey:expression.keyPath];
             if ([property isKindOfClass:[NSRelationshipDescription class]]) {
                 // if it's a relationship it should be a MOCID
