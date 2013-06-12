@@ -20,6 +20,10 @@
 		AA11B0A7175C9DB8001DF3E3 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA11B09D175C9D93001DF3E3 /* SystemConfiguration.framework */; };
 		AA11B0A9175C9DBB001DF3E3 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA11B09B175C9D8C001DF3E3 /* Security.framework */; };
 		AA11B0AB175C9DBF001DF3E3 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA11B099175C9D83001DF3E3 /* CFNetwork.framework */; };
+		AA47B71917661D9C001EC568 /* CBISBase64.h in Headers */ = {isa = PBXBuildFile; fileRef = AA47B71717661D9C001EC568 /* CBISBase64.h */; };
+		AA47B71A17661D9C001EC568 /* CBISBase64.h in Headers */ = {isa = PBXBuildFile; fileRef = AA47B71717661D9C001EC568 /* CBISBase64.h */; };
+		AA47B71B17661D9C001EC568 /* CBISBase64.m in Sources */ = {isa = PBXBuildFile; fileRef = AA47B71817661D9C001EC568 /* CBISBase64.m */; };
+		AA47B71C17661D9C001EC568 /* CBISBase64.m in Sources */ = {isa = PBXBuildFile; fileRef = AA47B71817661D9C001EC568 /* CBISBase64.m */; };
 		AA566135175B58BA00CDD821 /* CBCouchCocoaIncrementalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = AA566134175B58BA00CDD821 /* CBCouchCocoaIncrementalStore.m */; };
 		AA5D8648176271130043DEB0 /* CouchbaseLite.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5D8647176271130043DEB0 /* CouchbaseLite.framework */; };
 		AA5D866F1762F9CB0043DEB0 /* CBCouchbaseAbstractIncrementalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = AA82ED6D1761D81D00D3FFBF /* CBCouchbaseAbstractIncrementalStore.m */; };
@@ -31,6 +35,8 @@
 		AA82ED7C1761E9E700D3FFBF /* CBCouchbaseLiteIncrementalStore.h in Headers */ = {isa = PBXBuildFile; fileRef = AA82ED791761E9E700D3FFBF /* CBCouchbaseLiteIncrementalStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AA82EDA11761FF3300D3FFBF /* CBCouchbaseAbstractIncrementalStore.h in Headers */ = {isa = PBXBuildFile; fileRef = AA82ED6C1761D81D00D3FFBF /* CBCouchbaseAbstractIncrementalStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AA82EDA21761FF3400D3FFBF /* CBCouchbaseAbstractIncrementalStore.h in Headers */ = {isa = PBXBuildFile; fileRef = AA82ED6C1761D81D00D3FFBF /* CBCouchbaseAbstractIncrementalStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		AA9119BC17689CAB008D5801 /* File.m in Sources */ = {isa = PBXBuildFile; fileRef = AA9119BB17689CAB008D5801 /* File.m */; };
+		AA9119D917689EB1008D5801 /* CBISBase64.m in Sources */ = {isa = PBXBuildFile; fileRef = AA47B71817661D9C001EC568 /* CBISBase64.m */; };
 		AA985AF5175F221D00207739 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA985AF4175F221D00207739 /* Cocoa.framework */; };
 		AA985B1F175F22A900207739 /* CBCouchCocoaIncrementalStore.h in Headers */ = {isa = PBXBuildFile; fileRef = AA566133175B58BA00CDD821 /* CBCouchCocoaIncrementalStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AA985B20175F22A900207739 /* CBCouchCocoaIncrementalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = AA566134175B58BA00CDD821 /* CBCouchCocoaIncrementalStore.m */; };
@@ -339,11 +345,13 @@
 		AA11B09D175C9D93001DF3E3 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		AA11B09F175C9D9C001DF3E3 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		AA11B0A1175C9DA5001DF3E3 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		AA47B71717661D9C001EC568 /* CBISBase64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CBISBase64.h; sourceTree = "<group>"; };
+		AA47B71817661D9C001EC568 /* CBISBase64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CBISBase64.m; sourceTree = "<group>"; };
 		AA5660F2175B578300CDD821 /* libCBCouchbaseIncrementalStore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libCBCouchbaseIncrementalStore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA5660F9175B578300CDD821 /* CBCouchbaseIncrementalStore-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CBCouchbaseIncrementalStore-Prefix.pch"; sourceTree = "<group>"; };
 		AA56610D175B587300CDD821 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		AA566133175B58BA00CDD821 /* CBCouchCocoaIncrementalStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CBCouchCocoaIncrementalStore.h; sourceTree = "<group>"; };
-		AA566134175B58BA00CDD821 /* CBCouchCocoaIncrementalStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = CBCouchCocoaIncrementalStore.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		AA566134175B58BA00CDD821 /* CBCouchCocoaIncrementalStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = CBCouchCocoaIncrementalStore.m; sourceTree = "<group>"; };
 		AA5D8647176271130043DEB0 /* CouchbaseLite.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CouchbaseLite.framework; path = "../Debug-ios-universal/CouchbaseLite.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA5D86701762F9F70043DEB0 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		AA7624E21760940D0046FB93 /* CBCouchbaseIncrementalStore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CBCouchbaseIncrementalStore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -353,6 +361,8 @@
 		AA82ED7A1761E9E700D3FFBF /* CBCouchbaseLiteIncrementalStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CBCouchbaseLiteIncrementalStore.m; sourceTree = "<group>"; };
 		AA82ED7F1761EC0000D3FFBF /* CouchbaseLite.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = CouchbaseLite.xcodeproj; path = "Libraries/CouchbaseLite-iOS/CouchbaseLite.xcodeproj"; sourceTree = "<group>"; };
 		AA82EDAA17626F9900D3FFBF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
+		AA9119BA17689CAB008D5801 /* File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = File.h; sourceTree = "<group>"; };
+		AA9119BB17689CAB008D5801 /* File.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = File.m; sourceTree = "<group>"; };
 		AA985AF3175F221D00207739 /* CBCouchbaseIncrementalStore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CBCouchbaseIncrementalStore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA985AF4175F221D00207739 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		AA985B23175F235A00207739 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -496,6 +506,8 @@
 			children = (
 				AAB407A4175D33A9009EDB07 /* NSString+CBISTemplate.h */,
 				AAB407A5175D33A9009EDB07 /* NSString+CBISTemplate.m */,
+				AA47B71717661D9C001EC568 /* CBISBase64.h */,
+				AA47B71817661D9C001EC568 /* CBISBase64.m */,
 			);
 			name = Helper;
 			sourceTree = "<group>";
@@ -524,6 +536,8 @@
 				AAB40778175D2A96009EDB07 /* Entry.m */,
 				AAB40774175D2A95009EDB07 /* Subentry.h */,
 				AAB40775175D2A95009EDB07 /* Subentry.m */,
+				AA9119BA17689CAB008D5801 /* File.h */,
+				AA9119BB17689CAB008D5801 /* File.m */,
 			);
 			name = ManagedObjects;
 			sourceTree = "<group>";
@@ -595,6 +609,7 @@
 				AA7624DD17608FF10046FB93 /* CBCouchCocoaIncrementalStore.h in Headers */,
 				AA82ED7B1761E9E700D3FFBF /* CBCouchbaseLiteIncrementalStore.h in Headers */,
 				AA82EDA11761FF3300D3FFBF /* CBCouchbaseAbstractIncrementalStore.h in Headers */,
+				AA47B71917661D9C001EC568 /* CBISBase64.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -606,6 +621,7 @@
 				AA985B21175F22A900207739 /* NSString+CBISTemplate.h in Headers */,
 				AA82ED7C1761E9E700D3FFBF /* CBCouchbaseLiteIncrementalStore.h in Headers */,
 				AA82EDA21761FF3400D3FFBF /* CBCouchbaseAbstractIncrementalStore.h in Headers */,
+				AA47B71A17661D9C001EC568 /* CBISBase64.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1025,6 +1041,7 @@
 				AA566135175B58BA00CDD821 /* CBCouchCocoaIncrementalStore.m in Sources */,
 				AAB407A6175D33A9009EDB07 /* NSString+CBISTemplate.m in Sources */,
 				AA82ED701761D81D00D3FFBF /* CBCouchbaseAbstractIncrementalStore.m in Sources */,
+				AA47B71B17661D9C001EC568 /* CBISBase64.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1035,6 +1052,7 @@
 				AA985B20175F22A900207739 /* CBCouchCocoaIncrementalStore.m in Sources */,
 				AA985B22175F22A900207739 /* NSString+CBISTemplate.m in Sources */,
 				AA82ED711761D81D00D3FFBF /* CBCouchbaseAbstractIncrementalStore.m in Sources */,
+				AA47B71C17661D9C001EC568 /* CBISBase64.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1049,6 +1067,8 @@
 				AAB4077C175D2AC1009EDB07 /* CouchDBIncrementalStore_iOSDemo.xcdatamodeld in Sources */,
 				AAB407A7175D33A9009EDB07 /* NSString+CBISTemplate.m in Sources */,
 				AA5D866F1762F9CB0043DEB0 /* CBCouchbaseAbstractIncrementalStore.m in Sources */,
+				AA9119BC17689CAB008D5801 /* File.m in Sources */,
+				AA9119D917689EB1008D5801 /* CBISBase64.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -14,6 +14,7 @@
 
 #import "Entry.h"
 #import "Subentry.h"
+#import "File.h"
 
 
 @interface CBCouchCocoaIncrementalStore ()
@@ -216,6 +217,33 @@
     result = [[self managedObjectContext] executeFetchRequest:fetchRequest error:&error];
     STAssertTrue(result.count == count, @"Fetch request should return same result count as number fetch");
     STAssertTrue([result[0] isKindOfClass:[NSManagedObject class]], @"Results are not NSManagedObjects");
+}
+
+- (void) testAttachment
+{
+    NSError *error;
+    
+    File *file = [NSEntityDescription insertNewObjectForEntityForName:@"File"
+                                               inManagedObjectContext:[self managedObjectContext]];
+    file.filename = @"test.txt";
+    
+    NSData *data = [@"Test. Hello World" dataUsingEncoding:NSUTF8StringEncoding];
+    file.data = data;
+    
+    BOOL success = [[self managedObjectContext] save:&error];
+    STAssertTrue(success, @"Could not save context: %@", error);
+    
+    CouchDocument *doc = [_persistentStore.database documentWithID:[file.objectID couchDBIDRepresentation]];
+    STAssertNotNil(doc, @"Document should not be nil");
+    STAssertEqualObjects(file.filename, [doc propertyForKey:@"filename"], @"fileName should be equal");
+    
+    CouchAttachment *att = [[CouchAttachment alloc] initWithParent:doc relativePath:@"data"];
+    STAssertNotNil(att, @"Attachmant should be created");
+    
+    NSData *body = att.body;
+    STAssertNotNil(body, @"Body should be loaded");
+    STAssertEquals(body.length, data.length, @"Data length should be equal");
+    STAssertEqualObjects(body, data, @"Data should be equal");
 }
 
 #pragma mark -

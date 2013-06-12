@@ -306,7 +306,7 @@
                              inManagedObjectContext:context];
     }
     
-    NSDictionary *values = [self _coreDataPropertiesWithDocumentProperties:doc.properties withEntity:entity inContext:context];
+    NSDictionary *values = [self _coreDataPropertiesOfDocumentWithID:doc.documentID properties:doc.properties withEntity:entity inContext:context];
     NSIncrementalStoreNode *node = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID
                                                                          withValues:values
                                                                             version:1];

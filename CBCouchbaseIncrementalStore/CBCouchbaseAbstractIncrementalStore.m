@@ -9,7 +9,7 @@
 #import "CBCouchbaseAbstractIncrementalStore.h"
 
 #import "NSString+CBISTemplate.h"
-
+#import "CBISBase64.h"
 
 //#define PROFILE
 
@@ -210,6 +210,8 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
         [proxy setObject:[object.objectID couchDBIDRepresentation] forKey:@"_id"];
     }
     
+    NSMutableArray *dataAttributes = nil;
+    
     for (NSString *property in propertyDesc) {
         if ([kCBISCurrentRevisionAttributeName isEqual:property]) continue;
         
@@ -219,6 +221,16 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
             NSAttributeDescription *attr = desc;
             
             if ([attr isTransient]) {
+                continue;
+            }
+            
+            // handle binary attributes to not load them into memory here
+            if ([attr attributeType] == NSBinaryDataAttributeType) {
+                if (!dataAttributes) {
+                    dataAttributes = [NSMutableArray array];
+                }
+                [dataAttributes addObject:attr];
+                
                 continue;
             }
             
@@ -245,12 +257,13 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
                     case NSDateAttributeType:
                         value = CBCDBIsNull(value) ? nil : CBCBISOStringFromDate(value);
                         break;
-                        /*
-                         default:
-                         //NSAssert(NO, @"Unsupported attribute type");
-                         //break;
-                         NSLog(@"ii unsupported attribute %@, type: %@ (%d)", attribute, attr, [attr attributeType]);
-                         */
+//                    case NSBinaryDataAttributeType: // handled above
+                    case NSUndefinedAttributeType:
+                        // intentionally do nothing
+                        break;
+                    default:
+                        NSLog(@"[info] unsupported attribute %@, type: %@ (%d)", attr.name, attr, (int)[attr attributeType]);
+                        break;
                 }
                 
                 if (value) {
@@ -273,10 +286,29 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
         }
     }
     
+    // add binary data attributes as 
+    if (dataAttributes) {
+        NSMutableDictionary *attachments = [NSMutableDictionary dictionary];
+        for (NSAttributeDescription *attribute in dataAttributes) {
+            NSData *data = [object valueForKey:attribute.name];
+            
+            if (!data) continue;
+                
+            [attachments setObject:@{
+             @"data": CBISBase64EncodedStringFromData(data),
+             @"length": @(data.length),
+             @"content_type": @"application/binary"
+             } forKey:attribute.name];
+        }
+        if (attachments.count > 0) {
+            [proxy setObject:attachments forKey:@"_attachments"];
+        }
+    }
+    
     return proxy;
 }
 
-- (NSDictionary*) _coreDataPropertiesWithDocumentProperties:(NSDictionary*)properties withEntity:(NSEntityDescription*)entity inContext:(NSManagedObjectContext*)context
+- (NSDictionary*) _coreDataPropertiesOfDocumentWithID:(NSString*)documentID properties:(NSDictionary*)properties withEntity:(NSEntityDescription*)entity inContext:(NSManagedObjectContext*)context
 {
     NSMutableDictionary *result = [NSMutableDictionary dictionaryWithCapacity:properties.count];
     
@@ -289,6 +321,22 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
             NSAttributeDescription *attr = desc;
             
             if ([attr isTransient]) {
+                continue;
+            }
+            
+            // handle binary attributes specially
+            if ([attr attributeType] == NSBinaryDataAttributeType) {
+                // TODO: handle binary attribute
+                NSDictionary *attachments = [properties objectForKey:@"_attachments"];
+                NSDictionary *attachment = [attachments objectForKey:property];
+                
+                if (!attachment) continue;
+                
+                id value = [self _loadDataForAttachmentWithName:property ofDocumentWithID:documentID metadata:attachment];
+                if (value) {
+                    [result setObject:value forKey:property];
+                }
+                
                 continue;
             }
             
@@ -317,6 +365,7 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
                     case NSBooleanAttributeType:
                         value = [NSNumber numberWithBool:CBCDBIsNull(value) ? NO : [value boolValue]];
                         break;
+                    // case NSBinaryDataAttributeType:  // handled above
                     case NSDateAttributeType:
                         value = CBCDBIsNull(value) ? nil : CBCBDateFromISOString(value);
                         break;
@@ -350,6 +399,12 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
     }
     
     return result;
+}
+
+- (NSData*) _loadDataForAttachmentWithName:(NSString*)name ofDocumentWithID:(NSString*)documentID metadata:(NSDictionary*)attachment
+{
+    NSAssert(NO, @"Must be overwritten by subclass");
+    return nil;
 }
 
 - (NSManagedObjectID *)_newObjectIDForEntity:(NSEntityDescription *)entity managedObjectContext:(NSManagedObjectContext*)context

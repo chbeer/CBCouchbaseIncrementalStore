@@ -50,7 +50,7 @@ NSString *CBCBISOStringFromDate(NSDate *date);
 
 - (id) _couchDBRepresentationOfManagedObject:(NSManagedObject*)object;
 - (id) _couchDBRepresentationOfManagedObject:(NSManagedObject*)object withCouchDBID:(BOOL)withCouchDBID;
-- (NSDictionary*) _coreDataPropertiesWithDocumentProperties:(NSDictionary*)properties withEntity:(NSEntityDescription*)entity inContext:(NSManagedObjectContext*)context;
+- (NSDictionary*) _coreDataPropertiesOfDocumentWithID:(NSString*)documentID properties:(NSDictionary*)properties withEntity:(NSEntityDescription*)entity inContext:(NSManagedObjectContext*)context;
 
 - (NSManagedObjectID *)_newObjectIDForEntity:(NSEntityDescription *)entity managedObjectContext:(NSManagedObjectContext*)context
                                      couchID:(NSString*)couchID couchType:(NSString*)couchType;

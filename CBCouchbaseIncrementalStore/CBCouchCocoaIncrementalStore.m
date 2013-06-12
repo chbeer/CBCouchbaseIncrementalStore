@@ -21,6 +21,15 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
 
 @end
 
+@interface CouchAttachment ()
+
+- (id) initWithParent: (CouchResource*)parent
+                 name: (NSString*)name
+             metadata: (NSDictionary*)metadata;
+
+@end
+
+
 
 @interface CBCouchCocoaIncrementalStore ()
 
@@ -179,6 +188,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                                     NSUnderlyingErrorKey:op.error
                                  }];
         }
+        
         
         // clear cache for entities to get changes
         for (NSString *entityName in changedEntities) {
@@ -362,7 +372,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                              inManagedObjectContext:context];
     }
     
-    NSDictionary *values = [self _coreDataPropertiesWithDocumentProperties:doc.properties withEntity:entity inContext:context];
+    NSDictionary *values = [self _coreDataPropertiesOfDocumentWithID:doc.documentID properties:doc.properties withEntity:entity inContext:context];
     NSIncrementalStoreNode *node = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID
                                                                          withValues:values
                                                                             version:1];
@@ -848,6 +858,18 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
     [[NSNotificationCenter defaultCenter] postNotificationName:kCBISObjectHasBeenChangedInStoreNotification
                                                         object:self userInfo:userInfo];
     
+}
+
+#pragma mark - Attachments
+
+- (NSData*) _loadDataForAttachmentWithName:(NSString*)name ofDocumentWithID:(NSString*)documentID metadata:(NSDictionary*)metadata
+{
+    CouchDocument *doc = [self.database documentWithID:documentID];
+    CouchAttachment *att = [[CouchAttachment alloc] initWithParent:doc
+                                                              name:name
+                                                          metadata:metadata];
+    
+    return att.body;
 }
 
 @end
