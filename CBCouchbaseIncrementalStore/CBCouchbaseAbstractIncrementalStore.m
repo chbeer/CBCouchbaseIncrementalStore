@@ -487,59 +487,14 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
         id leftValue = [self _evaluateExpression:comparisonPredicate.leftExpression withEntity:entity properties:properties];
         id rightValue = [self _evaluateExpression:comparisonPredicate.rightExpression withEntity:entity properties:properties];
         
-        BOOL result = NO;
-        switch (comparisonPredicate.predicateOperatorType) {
-            case NSEqualToPredicateOperatorType:
-                result = [leftValue isEqual:rightValue];
-                break;
-            case NSNotEqualToPredicateOperatorType:
-                result = ![leftValue isEqual:rightValue];
-                break;
-            case NSInPredicateOperatorType:
-                result = [rightValue containsObject:leftValue];
-                break;
-            case NSBeginsWithPredicateOperatorType:
-                result = [leftValue hasPrefix:rightValue];
-                break;
-            case NSEndsWithPredicateOperatorType:
-                result = [leftValue hasSuffix:rightValue];
-                break;
-                
-                // note: the following are yet untested:
-            case NSContainsPredicateOperatorType:
-                result = ([leftValue rangeOfString:rightValue].location != NSNotFound);
-                break;
-                
-            case NSLessThanPredicateOperatorType: // compare: returns NSOrderedAscending
-                result = ([leftValue compare:rightValue] == NSOrderedAscending);
-                break;
-            case NSLessThanOrEqualToPredicateOperatorType: {// compare: returns NSOrderedAscending || NSOrderedSame
-                NSComparisonResult comp = [leftValue compare:rightValue];
-                result = (comp == NSOrderedAscending || comp == NSOrderedSame);
-            }
-                break;
-            case NSGreaterThanPredicateOperatorType: // compare: returns NSOrderedDescending
-                result = ([leftValue compare:rightValue] == NSOrderedDescending);
-                break;
-            case NSGreaterThanOrEqualToPredicateOperatorType:{ // compare: returns NSOrderedDescending || NSOrderedSame
-                NSComparisonResult comp = [leftValue compare:rightValue];
-                result = (comp == NSOrderedDescending || comp == NSOrderedSame);
-            }
-                break;
-                
-            case NSBetweenPredicateOperatorType: {
-                id low = [rightValue objectAtIndex:0];
-                id high = [rightValue objectAtIndex:1];
-                NSComparisonResult compLow = [leftValue compare:low];
-                NSComparisonResult compHigh = [leftValue compare:high];
-                result = (compLow == NSOrderedAscending || compLow == NSOrderedSame) && (compHigh == NSOrderedDescending || compHigh == NSOrderedSame);
-            }
-                break;
-                
-            default:
-                NSAssert(NO, @"[devel] PredicateOperatorType not implemented yet: %d", (int)comparisonPredicate.predicateOperatorType);
-                break;
-        }
+        NSExpression *leftExpression = [NSExpression expressionForConstantValue:leftValue];
+        NSExpression *rightExpression = [NSExpression expressionForConstantValue:rightValue];
+        NSPredicate *comp = [NSComparisonPredicate predicateWithLeftExpression:leftExpression rightExpression:rightExpression
+                                                                      modifier:comparisonPredicate.comparisonPredicateModifier
+                                                                          type:comparisonPredicate.predicateOperatorType
+                                                                       options:comparisonPredicate.options];
+        
+        BOOL result = [comp evaluateWithObject:nil];
         return result;
     }
     

@@ -7,7 +7,11 @@
                 <entry key="tdis_view" value="yes"/>
             </userInfo>
         </attribute>
+        <attribute name="decimalNumber" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="doubleNumber" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="number" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="text2" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="files" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="File" inverseName="entry" inverseEntity="File" syncable="YES"/>
         <relationship name="subentries" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Subentry" inverseName="entry" inverseEntity="Subentry" syncable="YES"/>
     </entity>
@@ -22,7 +26,7 @@
         <relationship name="entry" optional="YES" minCount="1" maxCount="1" deletionRule="Nullify" destinationEntity="Entry" inverseName="subentries" inverseEntity="Entry" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Entry" positionX="169" positionY="192" width="128" height="118"/>
+        <element name="Entry" positionX="169" positionY="192" width="128" height="178"/>
         <element name="Subentry" positionX="342" positionY="195" width="128" height="88"/>
         <element name="File" positionX="349" positionY="342" width="128" height="88"/>
     </elements>

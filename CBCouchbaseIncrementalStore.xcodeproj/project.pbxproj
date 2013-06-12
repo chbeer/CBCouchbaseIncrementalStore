@@ -37,6 +37,7 @@
 		AA82EDA21761FF3400D3FFBF /* CBCouchbaseAbstractIncrementalStore.h in Headers */ = {isa = PBXBuildFile; fileRef = AA82ED6C1761D81D00D3FFBF /* CBCouchbaseAbstractIncrementalStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AA9119BC17689CAB008D5801 /* File.m in Sources */ = {isa = PBXBuildFile; fileRef = AA9119BB17689CAB008D5801 /* File.m */; };
 		AA9119D917689EB1008D5801 /* CBISBase64.m in Sources */ = {isa = PBXBuildFile; fileRef = AA47B71817661D9C001EC568 /* CBISBase64.m */; };
+		AA9119DC1768BA9E008D5801 /* Entry.m in Sources */ = {isa = PBXBuildFile; fileRef = AA9119DB1768BA9E008D5801 /* Entry.m */; };
 		AA985AF5175F221D00207739 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA985AF4175F221D00207739 /* Cocoa.framework */; };
 		AA985B1F175F22A900207739 /* CBCouchCocoaIncrementalStore.h in Headers */ = {isa = PBXBuildFile; fileRef = AA566133175B58BA00CDD821 /* CBCouchCocoaIncrementalStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AA985B20175F22A900207739 /* CBCouchCocoaIncrementalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = AA566134175B58BA00CDD821 /* CBCouchCocoaIncrementalStore.m */; };
@@ -45,7 +46,6 @@
 		AA985B25175F240E00207739 /* TouchDB.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAC5DE72175B5B7A007128EA /* TouchDB.framework */; };
 		AA985B26175F240E00207739 /* CouchCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAC5DEE6175C895C007128EA /* CouchCocoa.framework */; };
 		AAB40776175D2A95009EDB07 /* Subentry.m in Sources */ = {isa = PBXBuildFile; fileRef = AAB40775175D2A95009EDB07 /* Subentry.m */; };
-		AAB40779175D2A96009EDB07 /* Entry.m in Sources */ = {isa = PBXBuildFile; fileRef = AAB40778175D2A96009EDB07 /* Entry.m */; };
 		AAB4077C175D2AC1009EDB07 /* CouchDBIncrementalStore_iOSDemo.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = AAB4077A175D2AC1009EDB07 /* CouchDBIncrementalStore_iOSDemo.xcdatamodeld */; };
 		AAB407A6175D33A9009EDB07 /* NSString+CBISTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = AAB407A5175D33A9009EDB07 /* NSString+CBISTemplate.m */; };
 		AAB407A7175D33A9009EDB07 /* NSString+CBISTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = AAB407A5175D33A9009EDB07 /* NSString+CBISTemplate.m */; };
@@ -363,13 +363,13 @@
 		AA82EDAA17626F9900D3FFBF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		AA9119BA17689CAB008D5801 /* File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = File.h; sourceTree = "<group>"; };
 		AA9119BB17689CAB008D5801 /* File.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = File.m; sourceTree = "<group>"; };
+		AA9119DA1768BA9D008D5801 /* Entry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Entry.h; sourceTree = "<group>"; };
+		AA9119DB1768BA9E008D5801 /* Entry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Entry.m; sourceTree = "<group>"; };
 		AA985AF3175F221D00207739 /* CBCouchbaseIncrementalStore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CBCouchbaseIncrementalStore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA985AF4175F221D00207739 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		AA985B23175F235A00207739 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AAB40774175D2A95009EDB07 /* Subentry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Subentry.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		AAB40775175D2A95009EDB07 /* Subentry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = Subentry.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		AAB40777175D2A96009EDB07 /* Entry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Entry.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		AAB40778175D2A96009EDB07 /* Entry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = Entry.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		AAB4077B175D2AC1009EDB07 /* CouchDBIncrementalStore_iOSDemo.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CouchDBIncrementalStore_iOSDemo.xcdatamodel; sourceTree = "<group>"; };
 		AAB407A4175D33A9009EDB07 /* NSString+CBISTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "NSString+CBISTemplate.h"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		AAB407A5175D33A9009EDB07 /* NSString+CBISTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = "NSString+CBISTemplate.m"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
@@ -532,12 +532,12 @@
 		AAB40773175D2A65009EDB07 /* ManagedObjects */ = {
 			isa = PBXGroup;
 			children = (
-				AAB40777175D2A96009EDB07 /* Entry.h */,
-				AAB40778175D2A96009EDB07 /* Entry.m */,
 				AAB40774175D2A95009EDB07 /* Subentry.h */,
 				AAB40775175D2A95009EDB07 /* Subentry.m */,
 				AA9119BA17689CAB008D5801 /* File.h */,
 				AA9119BB17689CAB008D5801 /* File.m */,
+				AA9119DA1768BA9D008D5801 /* Entry.h */,
+				AA9119DB1768BA9E008D5801 /* Entry.m */,
 			);
 			name = ManagedObjects;
 			sourceTree = "<group>";
@@ -1063,12 +1063,12 @@
 				AAC5DE93175B5C08007128EA /* CBCouchDBIncrementalStore_Unit_Test.m in Sources */,
 				AAC5DE98175B5C1B007128EA /* CBCouchCocoaIncrementalStore.m in Sources */,
 				AAB40776175D2A95009EDB07 /* Subentry.m in Sources */,
-				AAB40779175D2A96009EDB07 /* Entry.m in Sources */,
 				AAB4077C175D2AC1009EDB07 /* CouchDBIncrementalStore_iOSDemo.xcdatamodeld in Sources */,
 				AAB407A7175D33A9009EDB07 /* NSString+CBISTemplate.m in Sources */,
 				AA5D866F1762F9CB0043DEB0 /* CBCouchbaseAbstractIncrementalStore.m in Sources */,
 				AA9119BC17689CAB008D5801 /* File.m in Sources */,
 				AA9119D917689EB1008D5801 /* CBISBase64.m in Sources */,
+				AA9119DC1768BA9E008D5801 /* Entry.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
