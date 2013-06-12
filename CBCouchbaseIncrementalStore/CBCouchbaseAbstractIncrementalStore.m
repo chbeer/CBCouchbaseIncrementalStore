@@ -507,7 +507,7 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
                 
                 // note: the following are yet untested:
             case NSContainsPredicateOperatorType:
-                result = [leftValue containsObject:rightValue];
+                result = ([leftValue rangeOfString:rightValue].location != NSNotFound);
                 break;
                 
             case NSLessThanPredicateOperatorType: // compare: returns NSOrderedAscending
