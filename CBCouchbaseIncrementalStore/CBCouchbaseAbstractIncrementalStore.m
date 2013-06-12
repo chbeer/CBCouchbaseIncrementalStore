@@ -463,12 +463,14 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
             }
         }
         
+        BOOL compoundResult = NO;
         for (NSPredicate *subpredicate in compoundPredicate.subpredicates) {
             BOOL result = [self _evaluatePredicate:subpredicate withEntity:entity properties:properties];
             
             switch (type) {
                 case NSAndPredicateType:
                     if (!result) return NO;
+                    compoundResult = YES;
                     break;
                 case NSOrPredicateType:
                     if (result) return YES;
@@ -480,7 +482,7 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
                     break;
             }
         }
-        return YES;
+        return compoundResult;
         
     } else if ([predicate isKindOfClass:[NSComparisonPredicate class]]) {
         NSComparisonPredicate *comparisonPredicate = (NSComparisonPredicate*)predicate;

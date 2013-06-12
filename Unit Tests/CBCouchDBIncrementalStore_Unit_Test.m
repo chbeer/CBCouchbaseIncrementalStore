@@ -273,7 +273,7 @@ typedef void(^CBISAssertionBlock)(NSArray *result, NSFetchRequestResultType resu
                              @"text": @"This is a test for predicates. Möhre.",
                              @"text2": @"This is text2.",
                              @"number": [NSNumber numberWithInt:10],
-                             @"decimalNumber": [NSDecimalNumber decimalNumberWithString:@"123.456"],
+                             @"decimalNumber": [NSDecimalNumber decimalNumberWithString:@"10.10"],
                              @"doubleNumber": [NSNumber numberWithDouble:42.23]
                              };
     NSDictionary *entry2 = @{
@@ -281,7 +281,7 @@ typedef void(^CBISAssertionBlock)(NSArray *result, NSFetchRequestResultType resu
                              @"text": @"Entry number 2. touché.",
                              @"text2": @"Text 2 by Entry number 2",
                              @"number": [NSNumber numberWithInt:20],
-                             @"decimalNumber": [NSDecimalNumber decimalNumberWithString:@"345.432"],
+                             @"decimalNumber": [NSDecimalNumber decimalNumberWithString:@"20.20"],
                              @"doubleNumber": [NSNumber numberWithDouble:12.45]
                              };
     NSDictionary *entry3 = @{
@@ -289,7 +289,7 @@ typedef void(^CBISAssertionBlock)(NSArray *result, NSFetchRequestResultType resu
                              @"text": @"Entry number 3",
                              @"text2": @"Text 2 by Entry number 3",
                              @"number": [NSNumber numberWithInt:30],
-                             @"decimalNumber": [NSDecimalNumber decimalNumberWithString:@"32.23"],
+                             @"decimalNumber": [NSDecimalNumber decimalNumberWithString:@"30.30"],
                              @"doubleNumber": [NSNumber numberWithDouble:98.76]
                              };
     
@@ -429,6 +429,44 @@ typedef void(^CBISAssertionBlock)(NSArray *result, NSFetchRequestResultType resu
 //    [self assertFetchRequest:fetchRequest assertionBlock:^(NSArray *result, NSFetchRequestResultType resultType) {
 //        STAssertEquals((int)result.count, 2, @"Count should be 2");
 //    }];
+    
+    //// IN
+    fetchRequest.predicate = [NSPredicate predicateWithFormat:@"number IN %@", @[@(10), @(30)]];
+    [self assertFetchRequest:fetchRequest assertionBlock:^(NSArray *result, NSFetchRequestResultType resultType) {
+        STAssertEquals((int)result.count, 2, @"Count should be 2");
+        if (result.count != 2) return;
+        NSArray *numbers = [[result valueForKey:@"number"] sortedArrayUsingSelector:@selector(compare:)];
+        STAssertEqualObjects(numbers[0], entry1[@"number"], @"Number should be equal");
+        STAssertEqualObjects(numbers[1], entry3[@"number"], @"Number should be equal");
+    }];
+    
+    //// AND
+    fetchRequest.predicate = [NSPredicate predicateWithFormat:@"number == 10 AND decimalNumber == 10.10"];
+    [self assertFetchRequest:fetchRequest assertionBlock:^(NSArray *result, NSFetchRequestResultType resultType) {
+        STAssertEquals((int)result.count, 1, @"Count should be 1");
+        if (result.count != 1) return;
+        STAssertEqualObjects([result[0] valueForKey:@"number"], entry1[@"number"], @"Number should be equal");
+        STAssertEqualObjects([result[0] valueForKey:@"decimalNumber"], entry1[@"decimalNumber"], @"decimalNumber should be equal");
+    }];
+    fetchRequest.predicate = [NSPredicate predicateWithFormat:@"number == 10 AND decimalNumber == 20.10"];
+    [self assertFetchRequest:fetchRequest assertionBlock:^(NSArray *result, NSFetchRequestResultType resultType) {
+        STAssertEquals((int)result.count, 0, @"Count should be 0");
+    }];
+    //// OR
+    fetchRequest.predicate = [NSPredicate predicateWithFormat:@"number == 10 OR number == 20"];
+    [self assertFetchRequest:fetchRequest assertionBlock:^(NSArray *result, NSFetchRequestResultType resultType) {
+        STAssertEquals((int)result.count, 2, @"Count should be 2");
+        if (result.count != 2) return;
+        NSArray *numbers = [[result valueForKey:@"number"] sortedArrayUsingSelector:@selector(compare:)];
+        STAssertEqualObjects(numbers[0], entry1[@"number"], @"Number should be equal");
+        STAssertEqualObjects(numbers[1], entry2[@"number"], @"Number should be equal");
+    }];
+    fetchRequest.predicate = [NSPredicate predicateWithFormat:@"number == 11 OR number == 20"];
+    [self assertFetchRequest:fetchRequest assertionBlock:^(NSArray *result, NSFetchRequestResultType resultType) {
+        STAssertEquals((int)result.count, 1, @"Count should be 1");
+        NSArray *numbers = [[result valueForKey:@"number"] sortedArrayUsingSelector:@selector(compare:)];
+        STAssertEqualObjects(numbers[0], entry2[@"number"], @"Number should be equal");
+    }];
 }
 
 #pragma mark -

@@ -715,6 +715,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
     CouchDesignDocument* design = [self.database designDocumentWithName:kCBISDesignName];
     
     CouchQuery *query = [design queryViewNamed:viewName];
+    // we should remove the predicate used in the view to not re-evaluate it later
     if (comparisonPredicate.predicateOperatorType == NSEqualToPredicateOperatorType) {
         id rightValue = [comparisonPredicate.rightExpression constantValue];
         if ([rightValue isKindOfClass:[NSManagedObjectID class]]) {
