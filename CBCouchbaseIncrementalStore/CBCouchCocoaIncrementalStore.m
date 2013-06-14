@@ -783,6 +783,10 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
 {
     return self.database.replications;
 }
+- (void) stopReplication;
+{
+    [self.database replicateWithURL:nil exclusively:YES];
+}
 
 #pragma mark - Change Handling
 

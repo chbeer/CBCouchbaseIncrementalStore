@@ -172,6 +172,10 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
     NSAssert(NO, @"Must be overwritten by subclass");
     return nil;
 }
+- (void) stopReplication;
+{
+    NSAssert(NO, @"Must be overwritten by subclass");
+}
 
 #pragma mark - Views
 

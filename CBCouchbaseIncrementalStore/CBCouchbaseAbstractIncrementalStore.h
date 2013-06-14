@@ -39,6 +39,7 @@ NSString *CBCBISOStringFromDate(NSDate *date);
 
 - (NSArray*) replicateWithURL:(NSURL*)replicationURL exclusively:(BOOL)exclusively;
 - (NSArray*) replications;
+- (void) stopReplication;
 
 - (void) defineFetchViewForEntity:(NSString*)entityName
                        byProperty:(NSString*)propertyName;
