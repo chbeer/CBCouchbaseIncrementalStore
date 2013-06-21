@@ -151,6 +151,8 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         
         // NOTE: currently we are waiting for each operation. That's not really what we want.
         // maybe we should wait using +[RESTOperation wait:set] but that didn't work on my test.
+
+        NSMutableSet *changedEntities = [NSMutableSet setWithCapacity:10];
         
         NSMutableArray *properties = [NSMutableArray arrayWithCapacity:[save insertedObjects].count];
         NSMutableDictionary *documentIDToObjectID = [NSMutableDictionary dictionaryWithCapacity:[save insertedObjects].count];
@@ -162,8 +164,6 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
             [properties addObject:contents];
             [documentIDToObjectID setObject:object.objectID forKey:[contents valueForKey:@"_id"]];
         }
-        
-        NSMutableSet *changedEntities = [NSMutableSet setWithCapacity:properties.count];
         
         RESTOperation *op = [self.database putChanges:properties];
         BOOL success = [op wait];
@@ -192,13 +192,6 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                                  }];
         }
         
-        
-        // clear cache for entities to get changes
-        for (NSString *entityName in changedEntities) {
-            [self _purgeCacheForEntityName:entityName];
-        }
-        
-        
         // Objects that were updated...
         if ([save updatedObjects].count > 0) {
             properties = [NSMutableArray arrayWithCapacity:[save updatedObjects].count];
@@ -206,6 +199,8 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
             
             for (NSManagedObject *object in [save updatedObjects]) {
                 NSDictionary *contents = [self _couchDBRepresentationOfManagedObject:object withCouchDBID:YES];
+                
+                [changedEntities addObject:object.entity.name];
                 
                 [properties addObject:contents];
                 [documentIDToObjectID setObject:object.objectID forKey:[contents valueForKey:@"_id"]];
@@ -244,6 +239,8 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                 NSString *documentId = [object.objectID couchDBIDRepresentation];
                 CouchDocument *doc = [self.database documentWithID:documentId];
                 [documents addObject:doc];
+
+                [changedEntities addObject:object.entity.name];
             }
             
             op = [self.database deleteDocuments:documents];
@@ -256,6 +253,14 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                                      }];
             }
         }
+        
+        
+        // clear cache for entities to get changes
+        for (NSString *entityName in changedEntities) {
+            [self _purgeCacheForEntityName:entityName];
+        }
+        
+
         
         return @[];
         
