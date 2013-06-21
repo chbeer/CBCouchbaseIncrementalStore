@@ -12,6 +12,9 @@
 
 #import "NSString+CBISTemplate.h"
 
+//#define PROFILE
+//#define PROFILE_CSV
+
 
 // "hack" for handling changes
 typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
@@ -267,6 +270,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         
         NSEntityDescription *entity = fetch.entity;
         NSString *entityName = entity.name;
+        NSPredicate *fetchPredicate = fetch.predicate;
         
         CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
         
@@ -340,13 +344,21 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
 #ifndef PROFILE
         if (end - start > 1) {
 #endif
+
+#ifdef PROFILE_CSV
+            NSLog(@"[tdis] fetch request;%f;%@;%@;%@;%@",
+                  end - start, entityName, CBResultTypeName(resultType), fetchPredicate, fetch.sortDescriptors);
+#else
             NSLog(@"[tdis] fetch request ---------------- \n"
                   "[tdis]   entity-name:%@\n"
                   "[tdis]   resultType:%@\n"
                   "[tdis]   fetchPredicate: %@\n"
+                  "[tdis]   sortDescriptors: %@\n"
                   "[tdis] --> took %f seconds\n"
                   "[tids]---------------- ",
-                  entityName, CBResultTypeName(resultType), fetch.predicate, end - start);
+                  entityName, CBResultTypeName(resultType), fetchPredicate, fetch.sortDescriptors, end - start);
+#endif
+            
 #ifndef PROFILE
         }
 #endif
@@ -364,6 +376,9 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
 
 - (NSIncrementalStoreNode *)newValuesForObjectWithID:(NSManagedObjectID*)objectID withContext:(NSManagedObjectContext*)context error:(NSError**)error;
 {
+#ifdef PROFILE
+    CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
+#endif
     CouchDocument* doc = [self.database documentWithID:[objectID couchDBIDRepresentation]];
     
     NSEntityDescription *entity = objectID.entity;
@@ -376,12 +391,27 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
     NSIncrementalStoreNode *node = [[NSIncrementalStoreNode alloc] initWithObjectID:objectID
                                                                          withValues:values
                                                                             version:1];
+#ifdef PROFILE
+    CFAbsoluteTime end = CFAbsoluteTimeGetCurrent();
+#ifdef PROFILE_CSV
+    NSLog(@"[tdis] newValuesForObjectWithID;%f", end - start);
+#else
+    NSLog(@"[tdis] ---- newValuesForObjectWithID : took %f", end - start);
+#endif
+    
+#endif
     
     return node;
 }
 
 - (id)newValueForRelationship:(NSRelationshipDescription*)relationship forObjectWithID:(NSManagedObjectID*)objectID withContext:(NSManagedObjectContext *)context error:(NSError **)error;
 {
+#ifdef PROFILE
+    CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
+#endif
+
+    id value = nil;
+    
     if ([relationship isToMany]) {
         CouchDesignDocument* design = [self.database designDocumentWithName:kCBISDesignName];
         CouchQuery* query = [design queryViewNamed:CBCDBToManyViewNameForRelationship(relationship)];
@@ -406,6 +436,19 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
             return [NSNull null];
         }
     }
+    
+#ifdef PROFILE
+    CFAbsoluteTime end = CFAbsoluteTimeGetCurrent();
+
+#ifdef PROFILE_CSV
+    NSLog(@"[tdis] newValueForRelationship;%f;%@", end - start, relationship.name);
+#else
+    NSLog(@"---- newValueForRelationship:%@ took %f", relationship.name, end - start);
+#endif
+    
+#endif
+    
+    return value;
 }
 
 #pragma mark - Views
