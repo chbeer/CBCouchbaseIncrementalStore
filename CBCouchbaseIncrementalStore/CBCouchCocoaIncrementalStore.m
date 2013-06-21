@@ -286,16 +286,6 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
             case NSManagedObjectResultType:
             case NSManagedObjectIDResultType: {
                 result = [self queryObjectsOfEntity:entity byFetchRequest:fetch inContext:context];
-                if (fetch.sortDescriptors) {
-                    result = [result sortedArrayUsingDescriptors:fetch.sortDescriptors];
-                }
-                if (resultType == NSManagedObjectIDResultType) {
-                    NSMutableArray *objectIDs = [NSMutableArray arrayWithCapacity:[result count]];
-                    for (NSManagedObject *obj in result) {
-                        [objectIDs addObject:[obj objectID]];
-                    }
-                    result = objectIDs;
-                }
             }
                 break;
                 
@@ -430,15 +420,15 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                                                   couchID:[row.value objectForKey:@"_id"]
                                                 couchType:[row.value objectForKey:kCBISTypeKey]]];
         }
+        value = result;
         
-        return result;
     } else {
         CouchDocument* doc = [self.database documentWithID:[objectID couchDBIDRepresentation]];
         NSString *destinationID = [doc propertyForKey:relationship.name];
         if (destinationID) {
-            return [self newObjectIDForEntity:relationship.destinationEntity referenceObject:destinationID];
+            value = [self newObjectIDForEntity:relationship.destinationEntity referenceObject:destinationID];
         } else {
-            return [NSNull null];
+            value = [NSNull null];
         }
     }
     
@@ -684,36 +674,89 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         query = [design queryViewNamed:kCBISAllByTypeViewName];
         query.keys = @[ entity.name ];
         query.prefetch = fetch.predicate != nil;
+    } else {
+        if ([fetch.predicate isKindOfClass:[NSCompoundPredicate class]] && [(NSCompoundPredicate*)fetch.predicate subpredicates].count > 1 && [(NSCompoundPredicate*)fetch.predicate compoundPredicateType] == NSAndPredicateType) {
+            // query is returned and it's a NSCompoundPredicate, the first predicate can be removed
+            NSCompoundPredicate *predicate = (NSCompoundPredicate*)fetch.predicate;
+            NSMutableArray *subpredicates = [predicate.subpredicates mutableCopy];
+            [subpredicates removeObjectAtIndex:0];
+            
+            if (subpredicates.count == 1) {
+                fetch.predicate = subpredicates[0];
+            } else {
+                predicate = (NSCompoundPredicate*)[NSCompoundPredicate andPredicateWithSubpredicates:subpredicates];
+                fetch.predicate = predicate;
+            }
+        } else {
+            fetch.predicate = nil;
+        }
     }
     
     NSArray *result = [self filterObjectsOfEntity:entity fromQuery:query byFetchRequest:fetch
                                         inContext:context];
-    
+
+    [self _setCacheResults:result forEntity:entity.name predicate:fetch.predicate];
+
     return result;
 }
 
 - (NSArray*) filterObjectsOfEntity:(NSEntityDescription*)entity fromQuery:(CouchQuery*)query byFetchRequest:(NSFetchRequest*)fetch inContext:(NSManagedObjectContext*)context
 {
-    if ([self _cachedQueryResultsForEntity:entity.name predicate:fetch.predicate]) {
-        return [self _cachedQueryResultsForEntity:entity.name predicate:fetch.predicate];
-    }
-    
     NSMutableArray *array = [NSMutableArray arrayWithCapacity:query.rows.count];
     for (CouchQueryRow *row in query.rows) {
         if (!fetch.predicate || [self _evaluatePredicate:fetch.predicate withEntity:entity properties:row.documentProperties]) {
-            NSString *documentID = [row.value valueForKey:@"_id"];
-            NSString *documentType = [row.value valueForKey:kCBISTypeKey];
-            NSManagedObjectID *objectID = [self _newObjectIDForEntity:entity managedObjectContext:context
-                                                              couchID:documentID
-                                                            couchType:documentType];
-            NSManagedObject *object = [context objectWithID:objectID];
-            [array addObject:object];
+
+            if (fetch.resultType == NSCountResultType && !fetch.predicate) {
+                
+                NSString *documentID = [row.value valueForKey:@"_id"];
+                
+                [array addObject:documentID];
+                
+            } else if (query.prefetch) {
+
+                [array addObject:row.documentProperties];
+
+            } else {
+            
+                [array addObject:row.value];
+            
+            }
+            
         }
     }
     
-    [self _setCacheResults:array forEntity:entity.name predicate:fetch.predicate];
+    // only returns DocumentIDs for count result type because we don't need more info
+    if (fetch.resultType == NSCountResultType && !fetch.predicate) {
+        return array;
+    }
     
-    return array;
+    if (fetch.sortDescriptors) {
+        // cast to NSMutableArray to prevent warning. It won't be mutated afterwards so it's OK.
+        array = (NSMutableArray*)[array sortedArrayUsingDescriptors:fetch.sortDescriptors];
+    }
+    
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:array.count];
+    for (NSDictionary *row in array) {
+        NSString *documentID = [row valueForKey:@"_id"];
+        NSString *documentType = [row valueForKey:kCBISTypeKey];
+        
+        NSManagedObjectID *objectID = [self _newObjectIDForEntity:entity managedObjectContext:context
+                                                          couchID:documentID
+                                                        couchType:documentType];
+        
+        if (fetch.resultType == NSManagedObjectResultType) {
+            
+            NSManagedObject *object = [context objectWithID:objectID];
+            [result addObject:object];
+
+        } else {
+            
+            [result addObject:objectID];
+            
+        }
+    }
+
+    return result;
 }
 
 - (CouchQuery*) queryForFetchRequest:(NSFetchRequest*)fetch onEntity:(NSEntityDescription*)entity
@@ -788,7 +831,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
             query.keys = rightValue;
         }
     }
-    query.prefetch = YES;
+    query.prefetch = fetch.resultType == NSManagedObjectResultType || fetch.sortDescriptors != nil;
     
     return query;
 }
