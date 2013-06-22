@@ -32,6 +32,11 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
 
 @end
 
+@interface CouchDesignDocument ()
+
+- (void) tellTDDatabase: (void(^)(TD_Database*))block;
+
+@end
 
 
 @interface CBCouchCocoaIncrementalStore ()
@@ -581,6 +586,10 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                                            }
                                        }
                                         version:@"1.0"];
+                        [design tellTDDatabase:^(TD_Database* tddb) {
+                            TD_View* view = [tddb viewNamed:viewName];
+                            view.collation = kTDViewCollationASCII;
+                        }];
 
                         [self _setViewName:viewName forFetchingProperty:inverseRelNameLower fromEntity:destEntityName];
                         
@@ -592,6 +601,10 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                                            }
                                        }
                                         version:@"1.0"];
+                        [design tellTDDatabase:^(TD_Database* tddb) {
+                            TD_View* view = [tddb viewNamed:viewName];
+                            view.collation = kTDViewCollationASCII;
+                        }];
                         
                         // remember view for mapping super-entity and all sub-entities
                         [self _setViewName:viewName forFetchingProperty:inverseRelNameLower fromEntity:rel.destinationEntity.name];
@@ -625,6 +638,10 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                        }
                    }
                     version:@"1.0"];
+    [design tellTDDatabase:^(TD_Database* tddb) {
+        TD_View* view = [tddb viewNamed:kCBISAllByTypeViewName];
+        view.collation = kTDViewCollationASCII;
+    }];
     [design defineViewNamed:kCBISIDByTypeViewName
                    mapBlock:^(NSDictionary *doc, TDMapEmitBlock emit) {
                        NSString* type = [doc objectForKey:kCBISTypeKey];
@@ -640,6 +657,10 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                        
                    }
                     version:@"1.0"];
+    [design tellTDDatabase:^(TD_Database* tddb) {
+        TD_View* view = [tddb viewNamed:kCBISIDByTypeViewName];
+        view.collation = kTDViewCollationASCII;
+    }];
 }
 
 - (void) defineFetchViewForEntity:(NSString*)entityName
