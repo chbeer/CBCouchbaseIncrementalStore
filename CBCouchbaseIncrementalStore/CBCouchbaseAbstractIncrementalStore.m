@@ -241,7 +241,32 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
             id value = [object valueForKey:property];
             
             if (value) {
-                switch ([attr attributeType]) {
+                
+                NSAttributeType attributeType = [attr attributeType];
+                
+                if (attr.valueTransformerName) {
+                    NSValueTransformer *transformer = [NSValueTransformer valueTransformerForName:attr.valueTransformerName];
+                    
+                    if (!transformer) {
+                        NSLog(@"[info] value transformer for attribute %@ with name %@ not found", attr.name, attr.valueTransformerName);
+                        continue;
+                    }
+                    
+                    value = [transformer transformedValue:value];
+                    
+                    Class transformedClass = [[transformer class] transformedValueClass];
+                    if (transformedClass == [NSString class]) {
+                        attributeType = NSStringAttributeType;
+                    } else if (transformedClass == [NSData class]) {
+                        value = CBISBase64EncodedStringFromData(value);
+                        attributeType = NSStringAttributeType;
+                    } else {
+                        NSLog(@"[info] unsupported value transformer transformedValueClass: %@", NSStringFromClass(transformedClass));
+                        continue;
+                    }
+                }
+                
+                switch (attributeType) {
                     case NSInteger16AttributeType:
                     case NSInteger32AttributeType:
                     case NSInteger64AttributeType:
@@ -352,7 +377,24 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
             }
             
             if (value) {
-                switch ([attr attributeType]) {
+                
+                NSAttributeType attributeType = [attr attributeType];
+
+                if (attr.valueTransformerName) {
+                    NSValueTransformer *transformer = [NSValueTransformer valueTransformerForName:attr.valueTransformerName];
+                    
+                    Class transformedClass = [[transformer class] transformedValueClass];
+                    if (transformedClass == [NSString class]) {
+                        value = [transformer reverseTransformedValue:value];
+                    } else if (transformedClass == [NSData class]) {
+                        value = [transformer reverseTransformedValue:CBISDataFromBase64EncodedString(value)];
+                    } else {
+                        NSLog(@"[info] unsupported value transformer transformedValueClass: %@", NSStringFromClass(transformedClass));
+                        continue;
+                    }
+                }
+                
+                switch (attributeType) {
                     case NSInteger16AttributeType:
                     case NSInteger32AttributeType:
                     case NSInteger64AttributeType:
