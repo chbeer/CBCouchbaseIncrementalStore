@@ -411,9 +411,11 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
                     case NSBooleanAttributeType:
                         value = [NSNumber numberWithBool:CBCDBIsNull(value) ? NO : [value boolValue]];
                         break;
-                    // case NSBinaryDataAttributeType:  // handled above
                     case NSDateAttributeType:
                         value = CBCDBIsNull(value) ? nil : CBCBDateFromISOString(value);
+                        break;
+                    case NSTransformableAttributeType:
+                        // intentionally do nothing
                         break;
                         /*
                          default:
