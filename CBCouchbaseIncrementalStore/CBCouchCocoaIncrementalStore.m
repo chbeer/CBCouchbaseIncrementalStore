@@ -35,6 +35,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
 @interface CouchDesignDocument ()
 
 - (void) tellTDDatabase: (void(^)(TD_Database*))block;
+- (NSString*) qualifiedName: (NSString*)name;
 
 @end
 
@@ -587,7 +588,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                                        }
                                         version:@"1.0"];
                         [design tellTDDatabase:^(TD_Database* tddb) {
-                            TD_View* view = [tddb viewNamed:viewName];
+                            TD_View* view = [tddb existingViewNamed:[design qualifiedName:viewName]];
                             view.collation = kTDViewCollationASCII;
                         }];
 
@@ -602,7 +603,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                                        }
                                         version:@"1.0"];
                         [design tellTDDatabase:^(TD_Database* tddb) {
-                            TD_View* view = [tddb viewNamed:viewName];
+                            TD_View* view = [tddb existingViewNamed:[design qualifiedName:viewName]];
                             view.collation = kTDViewCollationASCII;
                         }];
                         
@@ -639,7 +640,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                    }
                     version:@"1.0"];
     [design tellTDDatabase:^(TD_Database* tddb) {
-        TD_View* view = [tddb viewNamed:kCBISAllByTypeViewName];
+        TD_View* view = [tddb existingViewNamed:[design qualifiedName:kCBISAllByTypeViewName]];
         view.collation = kTDViewCollationASCII;
     }];
     [design defineViewNamed:kCBISIDByTypeViewName
@@ -658,7 +659,7 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                    }
                     version:@"1.0"];
     [design tellTDDatabase:^(TD_Database* tddb) {
-        TD_View* view = [tddb viewNamed:kCBISIDByTypeViewName];
+        TD_View* view = [tddb existingViewNamed:[design qualifiedName:kCBISIDByTypeViewName]];
         view.collation = kTDViewCollationASCII;
     }];
 }
