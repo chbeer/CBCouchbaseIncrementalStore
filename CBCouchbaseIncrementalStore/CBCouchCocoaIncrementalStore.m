@@ -165,6 +165,8 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         
         // Objects that were inserted...
         for (NSManagedObject *object in [save insertedObjects]) {
+            NSAssert(!object.objectID.isTemporaryID, @"Can not sync temporary objects");
+            
             NSDictionary *contents = [self _couchDBRepresentationOfManagedObject:object withCouchDBID:YES];
             
             [properties addObject:contents];
@@ -187,7 +189,9 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                 [object didChangeValueForKey:kCBISCurrentRevisionAttributeName];
                 
                 [object willChangeValueForKey:@"objectID"];
-                [context obtainPermanentIDsForObjects:@[object] error:nil];
+                NSError *error;
+                BOOL success = [context obtainPermanentIDsForObjects:@[object] error:&error];
+                if (!success) NSLog(@"[error] could not obtain permanent ID: %@", error);
                 [object didChangeValueForKey:@"objectID"];
             }
         } else {
