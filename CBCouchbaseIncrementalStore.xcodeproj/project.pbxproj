@@ -28,6 +28,7 @@
 		AA5D8648176271130043DEB0 /* CouchbaseLite.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5D8647176271130043DEB0 /* CouchbaseLite.framework */; };
 		AA5D866F1762F9CB0043DEB0 /* CBCouchbaseAbstractIncrementalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = AA82ED6D1761D81D00D3FFBF /* CBCouchbaseAbstractIncrementalStore.m */; };
 		AA5D86711762F9F70043DEB0 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5D86701762F9F70043DEB0 /* UIKit.framework */; };
+		AA676D6817A80511005304CA /* libTouchDBListener.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAC5DEC0175C86BB007128EA /* libTouchDBListener.a */; };
 		AA7624DD17608FF10046FB93 /* CBCouchCocoaIncrementalStore.h in Headers */ = {isa = PBXBuildFile; fileRef = AA566133175B58BA00CDD821 /* CBCouchCocoaIncrementalStore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		AA82ED701761D81D00D3FFBF /* CBCouchbaseAbstractIncrementalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = AA82ED6D1761D81D00D3FFBF /* CBCouchbaseAbstractIncrementalStore.m */; };
 		AA82ED711761D81D00D3FFBF /* CBCouchbaseAbstractIncrementalStore.m in Sources */ = {isa = PBXBuildFile; fileRef = AA82ED6D1761D81D00D3FFBF /* CBCouchbaseAbstractIncrementalStore.m */; };
@@ -72,6 +73,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 27EEA59713D602EA00D7ACA4;
 			remoteInfo = "iOS Framework";
+		};
+		AA676D4A17A80506005304CA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AAC5DE9A175C86BA007128EA /* TouchDB.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = DA023B2614BCA94C008184BB;
+			remoteInfo = "Listener iOS Library";
 		};
 		AA7624F1176094900046FB93 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -391,6 +399,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA676D6817A80511005304CA /* libTouchDBListener.a in Frameworks */,
 				AA11B098175C9B50001DF3E3 /* CoreData.framework in Frameworks */,
 				AAC5DE73175B5B7A007128EA /* TouchDB.framework in Frameworks */,
 				AAC5DEE7175C895C007128EA /* CouchCocoa.framework in Frameworks */,
@@ -640,6 +649,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				AA676D4B17A80506005304CA /* PBXTargetDependency */,
 				AA82EDA6176266F500D3FFBF /* PBXTargetDependency */,
 				AAC5DEDF175C86E8007128EA /* PBXTargetDependency */,
 				AAC5DEE1175C86E8007128EA /* PBXTargetDependency */,
@@ -1085,6 +1095,11 @@
 			name = "iOS Framework";
 			targetProxy = AA11B094175C9B06001DF3E3 /* PBXContainerItemProxy */;
 		};
+		AA676D4B17A80506005304CA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "Listener iOS Library";
+			targetProxy = AA676D4A17A80506005304CA /* PBXContainerItemProxy */;
+		};
 		AA7624F2176094900046FB93 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = AA5660F1175B578300CDD821 /* iOS Library */;
@@ -1278,6 +1293,7 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1291,6 +1307,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				INFOPLIST_FILE = CBCouchbaseIncrementalStore/Info.plist;
+				INSTALL_PATH = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = CBCouchbaseIncrementalStore;
 				SDKROOT = macosx;
@@ -1317,6 +1334,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				INFOPLIST_FILE = CBCouchbaseIncrementalStore/Info.plist;
+				INSTALL_PATH = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = CBCouchbaseIncrementalStore;
 				SDKROOT = macosx;
