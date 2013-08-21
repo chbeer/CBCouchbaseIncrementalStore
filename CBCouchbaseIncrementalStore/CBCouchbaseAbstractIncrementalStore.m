@@ -66,6 +66,12 @@ NSString * const kCBISObjectHasBeenChangedInStoreNotification = @"kCBISObjectHas
         }
         
         NSMutableArray *properties = [entity.properties mutableCopy];
+
+        for (NSPropertyDescription *prop in properties) {
+            if ([prop.name isEqual:kCBISCurrentRevisionAttributeName]) {
+                return;
+            }
+        }
         
         NSAttributeDescription *revAttribute = [NSAttributeDescription new];
         revAttribute.name = kCBISCurrentRevisionAttributeName;
