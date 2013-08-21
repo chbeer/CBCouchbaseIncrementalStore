@@ -1216,7 +1216,7 @@
 		AA566101175B578300CDD821 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				DSTROOT = /tmp/CBCouchDBIncrementalStore.dst;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1224,6 +1224,7 @@
 					"\"$(SRCROOT)/../../../Library/Developer/Xcode/DerivedData/iVocabulary-chfyjofkppoaohghoozeqhckifcp/Build/Products/Debug-ios-universal\"",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = CBCouchbaseIncrementalStore;
 				PUBLIC_HEADERS_FOLDER_PATH = "$(PRODUCT_NAME)";
@@ -1234,7 +1235,7 @@
 		AA566102175B578300CDD821 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				DSTROOT = /tmp/CBCouchDBIncrementalStore.dst;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
