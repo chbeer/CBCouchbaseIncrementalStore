@@ -16,4 +16,6 @@
  * */
 @interface CBCouchCocoaIncrementalStore : CBCouchbaseAbstractIncrementalStore
 
+@property (nonatomic, assign) BOOL keepPropertiesWhenDeleted;
+
 @end

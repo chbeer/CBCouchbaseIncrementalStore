@@ -239,24 +239,53 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         
         // Objects that were deleted from the calling context...
         if ([save deletedObjects].count > 0) {
-            NSMutableArray *documents = [NSMutableArray arrayWithCapacity:[save deletedObjects].count];
             
-            for (NSManagedObject *object in [save deletedObjects]) {
-                NSString *documentId = [object.objectID couchDBIDRepresentation];
-                CouchDocument *doc = [self.database documentWithID:documentId];
-                [documents addObject:doc];
-
-                [changedEntities addObject:object.entity.name];
-            }
-            
-            op = [self.database deleteDocuments:documents];
-            success = [op wait];
-            if (!success) {
-                if (error) *error = [NSError errorWithDomain:kCBISIncrementalStoreErrorDomain
-                                                        code:2 userInfo:@{
-                            NSLocalizedFailureReasonErrorKey: @"Error deleting objects",
-                                        NSUnderlyingErrorKey:op.error
-                                     }];
+            if (self.keepPropertiesWhenDeleted) {
+                
+                properties = [NSMutableArray arrayWithCapacity:[save deletedObjects].count];
+                documentIDToObjectID = [NSMutableDictionary dictionaryWithCapacity:[save deletedObjects].count];
+                
+                for (NSManagedObject *object in [save deletedObjects]) {
+                    NSDictionary *contents = [self _couchDBRepresentationOfManagedObject:object withCouchDBID:YES];
+                    [contents setValue:[NSNumber numberWithBool:YES] forKey:@"_deleted"];
+                    
+                    [changedEntities addObject:object.entity.name];
+                    
+                    [properties addObject:contents];
+                    [documentIDToObjectID setObject:object.objectID forKey:[contents valueForKey:@"_id"]];
+                }
+                
+                op = [self.database putChanges:properties];
+                success = [op wait];
+                if (!success) {
+                    if (error) *error = [NSError errorWithDomain:kCBISIncrementalStoreErrorDomain
+                                                            code:2 userInfo:@{
+                                                                              NSLocalizedFailureReasonErrorKey: @"Error putting deleted objects",
+                                                                              NSUnderlyingErrorKey:op.error
+                                                                              }];
+                }
+                
+            } else {
+                
+                NSMutableArray *documents = [NSMutableArray arrayWithCapacity:[save deletedObjects].count];
+                
+                for (NSManagedObject *object in [save deletedObjects]) {
+                    NSString *documentId = [object.objectID couchDBIDRepresentation];
+                    CouchDocument *doc = [self.database documentWithID:documentId];
+                    [documents addObject:doc];
+                    
+                    [changedEntities addObject:object.entity.name];
+                }
+                
+                op = [self.database deleteDocuments:documents];
+                success = [op wait];
+                if (!success) {
+                    if (error) *error = [NSError errorWithDomain:kCBISIncrementalStoreErrorDomain
+                                                            code:2 userInfo:@{
+                                                                              NSLocalizedFailureReasonErrorKey: @"Error deleting objects",
+                                                                              NSUnderlyingErrorKey:op.error
+                                                                              }];
+                }
             }
         }
         
