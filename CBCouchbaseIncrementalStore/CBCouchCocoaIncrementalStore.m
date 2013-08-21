@@ -335,8 +335,9 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
                 query.keys = @[ entityName ];
                 query.prefetch = YES;
                 
-                NSMutableArray *array = [NSMutableArray arrayWithCapacity:query.rows.count];
-                for (CouchQueryRow *row in query.rows) {
+                CouchQueryEnumerator *rows = query.rows;
+                NSMutableArray *array = [NSMutableArray arrayWithCapacity:rows.count];
+                for (CouchQueryRow *row in rows) {
                     NSDictionary *properties = row.documentProperties;
                     
                     if (!fetch.predicate || [fetch.predicate evaluateWithObject:properties]) {
@@ -452,8 +453,9 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         
         query.keys = @[ [objectID couchDBIDRepresentation] ];
         
-        NSMutableArray *result = [NSMutableArray arrayWithCapacity:query.rows.count];
-        for (CouchQueryRow* row in query.rows) {
+        CouchQueryEnumerator *rows = query.rows;
+        NSMutableArray *result = [NSMutableArray arrayWithCapacity:rows.count];
+        for (CouchQueryRow* row in rows) {
             [result addObject:[self _newObjectIDForEntity:relationship.destinationEntity
                                      managedObjectContext:context
                                                   couchID:[row.value objectForKey:@"_id"]
@@ -757,8 +759,9 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
 
 - (NSArray*) filterObjectsOfEntity:(NSEntityDescription*)entity fromQuery:(CouchQuery*)query byFetchRequest:(NSFetchRequest*)fetch inContext:(NSManagedObjectContext*)context
 {
-    NSMutableArray *array = [NSMutableArray arrayWithCapacity:query.rows.count];
-    for (CouchQueryRow *row in query.rows) {
+    CouchQueryEnumerator *rows = query.rows;
+    NSMutableArray *array = [NSMutableArray arrayWithCapacity:rows.count];
+    for (CouchQueryRow *row in rows) {
         if (!fetch.predicate || [self _evaluatePredicate:fetch.predicate withEntity:entity properties:row.documentProperties]) {
 
             if (fetch.resultType == NSCountResultType && !fetch.predicate) {
@@ -887,6 +890,13 @@ typedef void (^OnDatabaseChangeBlock)(CouchDocument*, BOOL externalChange);
         }
     }
     query.prefetch = fetch.resultType == NSManagedObjectResultType || fetch.sortDescriptors != nil;
+    
+    if (fetch.fetchBatchSize > 0 && fetch.fetchOffset == 0) {
+        query.limit = fetch.fetchBatchSize;
+    }
+    if (fetch.fetchLimit > 0) {
+        query.limit = fetch.fetchLimit;
+    }
     
     return query;
 }
