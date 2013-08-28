@@ -3,7 +3,7 @@
 //  CBCouchDBIncrementalStore
 //
 //  Created by Christian Beer on 16.06.10.
-//  Copyright 2010 kaufDA - Juno Internet GmbH . All rights reserved.
+//  Copyright 2010 - Christian Beer. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
