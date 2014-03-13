@@ -1,5 +1,9 @@
 # CBCouchbaseIncrementalStore #
 
+**NOTE:** __You should not use this repo as it's outdated!__ This has been included into CouchbaseLite in the Extras folder: https://github.com/couchbase/couchbase-lite-ios/blob/master/Source/API/Extras/CBLIncrementalStore.h 
+
+----
+
 ``NSIncrementalStore`` implementation for _CouchDB_ / _TouchDB_ or _CouchbaseLite iOS_. It uses CouchCocoa or CouchbaseLite API for communicating with the database.
 
 If this document talks about CouchDB, all three are ment, if not otherwise specified.
